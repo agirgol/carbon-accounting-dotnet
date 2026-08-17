@@ -81,6 +81,39 @@ and should: a national dataset can only publish the grid average, so a market-ba
 figure has to come from the company's own contracts. Returning zero would silently drop
 the whole of purchased electricity from the total, and nothing downstream would show it.
 
+Turn it into a disclosure:
+
+```csharp
+using GhgAccounting.Reporting;
+
+InventoryReport report = InventoryReport.For(inventory, Scope2Method.LocationBased);
+
+Console.WriteLine(report.ToMarkdown());
+foreach (ReportCaveat caveat in report.Caveats)
+{
+    Console.WriteLine($"{caveat.Kind}: {caveat.Detail}");
+}
+```
+
+The report states the GWP set and Scope 2 method, holds biogenic CO₂ outside the totals,
+cites each factor set with its share of the total and its verification status, and lists
+the caveats. The caveats are **computed from the inventory, not written by the reporter**
+— an inconvenient one cannot be left out by forgetting to mention it:
+
+```
+- DerivedFactorComponents — Per-gas splits were reconstructed rather than published
+  as gas masses in: defra-2026-secr, eurostat-grid-2023
+- Scope2NotDualReported — The GHG Protocol Scope 2 Guidance expects both methods;
+  only location-based data is present.
+- UncertaintyUnavailable — Not every contributing factor publishes an uncertainty,
+  so no combined figure is stated.
+- RegionMismatch — Factors from more than one region were applied: GB, TR.
+  Confirm each was used for activity in its own region.
+```
+
+It renders nothing regulatory. CBAM and CSRD formats change on their own schedule and
+stay out of scope; this is the standard's own disclosure content.
+
 Choosing the GWP set:
 
 ```csharp
@@ -315,6 +348,7 @@ Named here so nobody has to read the source to find out:
 | Scope 2 dual-reporting result type | ✅ |
 | Biogenic carbon reported outside the scope totals | ✅ |
 | Uncertainty propagation and data-quality breakdown | ✅ |
+| Disclosure report with computed caveats and source citations | ✅ |
 | AR5 and AR6 GWP sets verified against the IPCC tables | ✅ |
 | UK DESNZ 2026 SECR core: 234 factors, machine-generated from the source file | ✅ |
 | US EPA eGRID 2023: 27 subregion grid factors, published per gas | ✅ |
