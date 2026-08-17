@@ -1,0 +1,31 @@
+NOTICE — third-party data
+=========================
+
+The MIT licence in LICENSE covers the source code of this library.
+
+It does not cover the emission factor and global warming potential values shipped
+under data/. Those are reproduced from third-party publications and remain subject
+to the terms of their original publishers. Each catalog set records its own source,
+publication year and licence in its "source" block, and those records are compiled
+into the library so that a consumer can read them at run time.
+
+No dataset is added to this repository without a redistribution licence that permits
+it. Sets currently shipped:
+
+  data/gwp/ar5.json
+  data/gwp/ar6.json
+      IPCC Fifth and Sixth Assessment Report GWP-100 values.
+      Factual constants reproduced with attribution; the IPCC permits reproduction
+      of figures and tables from the assessment reports with citation.
+
+  data/factors/defra-2026-secr.json
+      UK Government greenhouse gas conversion factors 2026, published by the
+      Department for Energy Security and Net Zero.
+      Open Government Licence v3.0. Contains public sector information licensed
+      under the Open Government Licence v3.0:
+      https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+
+  data/examples/*.json
+      Synthetic values authored for this repository purely so the build and the
+      tests have something to work against. Not derived from any published dataset,
+      never valid for reporting, and excluded from released packages.

@@ -19,14 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-NOTE ON EMISSION FACTOR DATA
-
-This licence covers the source code. Emission factor and global warming
-potential values shipped under data/ are reproduced from third-party
-publications and remain subject to the terms of their original publishers.
-Each catalog set records its own source and licence in its "source" block.
-No dataset is added to this repository without a redistribution licence that
-permits it.

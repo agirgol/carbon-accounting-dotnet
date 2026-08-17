@@ -345,5 +345,12 @@ from the build rather than shipped. Adding an unverified set to `data/gwp/` or
 
 ## Licence
 
-MIT for the code. Emission factor data remains subject to its publishers' terms; see
-[LICENSE](LICENSE) and the `source` block of each catalog file.
+MIT for the code — see [LICENSE](LICENSE).
+
+Emission factor and GWP data is **not** covered by that licence. It is reproduced from
+third-party publications and stays subject to its publishers' terms, which
+[NOTICE](NOTICE) sets out per set. The DESNZ factors contain public sector information
+licensed under the Open Government Licence v3.0. Each catalog file also records its own
+source and licence in its `source` block, and those records compile into the library, so
+a consumer can read the provenance of any figure at run time rather than taking it on
+trust.
