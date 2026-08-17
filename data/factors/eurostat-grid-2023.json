@@ -16,39 +16,27 @@
     "verifiedBy": "Ege Ağırgöl",
     "verifiedOn": "2026-08-17",
     "method": "Computed by tools/eurostat-import/import_eurostat_grid.py from Eurostat's published series. The GWP basis was recovered from the data rather than taken from documentation: dividing each gas's CO2e series by its mass series, pooled across every country imported, gives 28.0 for CH4 and 265.09 for N2O, which are the AR5 values of 28 and 265. Pooling matters: Eurostat rounds to two decimals, so for a country emitting a fraction of a kilotonne the individual ratio is mostly rounding noise. The importer aborts if the pooled figure moves off AR5, or if any country large enough for its own ratio to be meaningful deviates. Gas masses are used rather than the CO2e aggregate, so the factors stay GWP-agnostic. The Türkiye figure was cross-checked against Ember's published lifecycle intensity for the same year, which sits above it by the margin lifecycle and biogenic accounting would be expected to add.",
-    "notes": "THESE FACTORS ARE DERIVED, NOT PUBLISHED. No authority publishes them; they are computed here from two published series following the European Environment Agency's own indicator method. Two choices shape every value. First, CRF 1.A.1.a covers public electricity AND heat, so combined heat and power fuel is allocated in proportion to the plant's electricity and heat output. How much that choice matters varies by country and is measured per factor. Where allocating CHP entirely to electricity would move the result by more than 5%, the factor is marked Proxy rather than Secondary; where it would move it by more than 10%, no factor is published for that country at all, because the answer would come out of the convention rather than out of the data. Countries running large district heating networks fall into that group, and the omissions are listed below with their measured sensitivity. Every published factor's note carries its own figure. Second, the numerator covers main activity producers only, so the denominator excludes autoproducers to keep the boundary consistent; using total national generation instead would lower the figures materially. Countries omitted for want of complete series: AT, BG, CH, CZ, DE, DK, EE, FI, HR, HU, IS, LT, LU, LV, NL, PL, RO, SE, SI, SK. ",
+    "notes": "THESE FACTORS ARE DERIVED, NOT PUBLISHED. No authority publishes them; they are computed here from two published series following the European Environment Agency's own indicator method. Two choices shape every value, and neither is this repository's invention. First, CRF 1.A.1.a covers public electricity AND heat, so combined heat and power fuel is split by the efficiency method that the GHG Protocol's CHP allocation guidance names as its preferred approach: fuel is attributed in proportion to what each output would have consumed if produced separately, using that guidance's own recommended efficiencies of 35% for electricity and 80% for heat. Substituting the IEA's reference efficiencies of 40% and 90% moves every country imported here by well under one percent, and each factor's note carries its own figure along with what the energy content method, which the guidance permits as an alternative, would have given. Second, the numerator covers main activity producers only, so the denominator excludes autoproducers to keep the boundary consistent; using total national generation instead would lower the figures materially. Countries omitted for want of complete series: CH. ",
     "inputs": {
-      "countries_imported": 11,
+      "countries_imported": 30,
       "countries_skipped": {
-        "AT": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 36.2%, so the figure would reflect the convention more than the data.",
-        "BG": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 13.7%, so the figure would reflect the convention more than the data.",
-        "CH": "Eurostat publishes no complete emissions or energy balance series for this country and year.",
-        "CZ": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 18.6%, so the figure would reflect the convention more than the data.",
-        "DE": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 21.3%, so the figure would reflect the convention more than the data.",
-        "DK": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 98.1%, so the figure would reflect the convention more than the data.",
-        "EE": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 64.3%, so the figure would reflect the convention more than the data.",
-        "FI": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 35.7%, so the figure would reflect the convention more than the data.",
-        "HR": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 27.8%, so the figure would reflect the convention more than the data.",
-        "HU": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 21.8%, so the figure would reflect the convention more than the data.",
-        "IS": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 29.9%, so the figure would reflect the convention more than the data.",
-        "LT": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 201.6%, so the figure would reflect the convention more than the data.",
-        "LU": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 149.1%, so the figure would reflect the convention more than the data.",
-        "LV": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 123.1%, so the figure would reflect the convention more than the data.",
-        "NL": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 15.2%, so the figure would reflect the convention more than the data.",
-        "PL": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 45.5%, so the figure would reflect the convention more than the data.",
-        "RO": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 18.3%, so the figure would reflect the convention more than the data.",
-        "SE": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 22.8%, so the figure would reflect the convention more than the data.",
-        "SI": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 13.8%, so the figure would reflect the convention more than the data.",
-        "SK": "Combined heat and power allocation drives the result: giving CHP fuel entirely to electricity would move it by 15.2%, so the figure would reflect the convention more than the data."
+        "CH": "Eurostat publishes no complete emissions or energy balance series for this country and year."
       },
       "recovered_gwp_mean": {
         "CH4": 28.0,
         "N2O": 265.09
       },
-      "proxy_quality_countries": {
-        "BE": 0.0533,
-        "IT": 0.0833,
-        "NO": 0.0541
+      "proxy_quality_countries": {},
+      "chp_allocation": {
+        "method": "GHG Protocol CHP guidance, efficiency method (its preferred method)",
+        "reference_efficiencies": {
+          "electricity": 0.35,
+          "heat": 0.8
+        },
+        "sensitivity_measured_against": {
+          "electricity": 0.4,
+          "heat": 0.9
+        }
       }
     },
     "sourceUrls": {
@@ -64,6 +52,24 @@
   },
   "factors": [
     {
+      "id": "eurostat-grid-2023/at/public-grid/mwh",
+      "activity": "Purchased grid electricity — Austria",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "AT",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 56.6979064343,
+        "MethaneFossil": 0.0110838625634,
+        "NitrousOxide": 0.00394942229272
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, AT 2023",
+      "note": "Main activity producers only. 77.58% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.1%; the energy content method, which the guidance permits as an alternative, would move it by 5.3%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
       "id": "eurostat-grid-2023/be/public-grid/mwh",
       "activity": "Purchased grid electricity — Belgium",
       "scope": "Scope2",
@@ -72,14 +78,32 @@
       "unit": "MegawattHour",
       "basis": "NotApplicable",
       "components": {
-        "CarbonDioxide": 154.793105238,
-        "MethaneFossil": 0.0152751798724,
-        "NitrousOxide": 0.00228413904633
+        "CarbonDioxide": 158.203257714,
+        "MethaneFossil": 0.0156116980421,
+        "NitrousOxide": 0.00233445952032
       },
       "componentsAreDerived": true,
-      "dataQuality": "Proxy",
+      "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, BE 2023",
-      "note": "Main activity producers only. 94.94% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 5.33%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 97.03% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.04%; the energy content method, which the guidance permits as an alternative, would move it by 2.2%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/bg/public-grid/mwh",
+      "activity": "Purchased grid electricity — Bulgaria",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "BG",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 340.827847062,
+        "MethaneFossil": 0.0173736813832,
+        "NitrousOxide": 0.00648617438307
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, BG 2023",
+      "note": "Main activity producers only. 91.07% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.06%; the energy content method, which the guidance permits as an alternative, would move it by 3.4%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     },
     {
       "id": "eurostat-grid-2023/cy/public-grid/mwh",
@@ -90,14 +114,86 @@
       "unit": "MegawattHour",
       "basis": "NotApplicable",
       "components": {
-        "CarbonDioxide": 620.282524989,
-        "MethaneFossil": 0.0244051984966,
-        "NitrousOxide": 0.00406753308276
+        "CarbonDioxide": 620.556490329,
+        "MethaneFossil": 0.0244159777435,
+        "NitrousOxide": 0.00406932962392
       },
       "componentsAreDerived": true,
       "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, CY 2023",
-      "note": "Main activity producers only. 99.89% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 0.11%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 99.93% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.0%; the energy content method, which the guidance permits as an alternative, would move it by 0.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/cz/public-grid/mwh",
+      "activity": "Purchased grid electricity — Czechia",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "CZ",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 425.696472359,
+        "MethaneFossil": 0.0173952257466,
+        "NitrousOxide": 0.00761834704229
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, CZ 2023",
+      "note": "Main activity producers only. 87.81% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.08%; the energy content method, which the guidance permits as an alternative, would move it by 4.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/de/public-grid/mwh",
+      "activity": "Purchased grid electricity — Germany",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "DE",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 336.821166126,
+        "MethaneFossil": 0.184959525221,
+        "NitrousOxide": 0.010112923948
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, DE 2023",
+      "note": "Main activity producers only. 87.55% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.1%; the energy content method, which the guidance permits as an alternative, would move it by 5.8%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/dk/public-grid/mwh",
+      "activity": "Purchased grid electricity — Denmark",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "DK",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 99.7685806805,
+        "MethaneFossil": 0.0698059728152,
+        "NitrousOxide": 0.00492496127224
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, DK 2023",
+      "note": "Main activity producers only. 60.7% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.33%; the energy content method, which the guidance permits as an alternative, would move it by 16.8%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/ee/public-grid/mwh",
+      "activity": "Purchased grid electricity — Estonia",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "EE",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 431.787445409,
+        "MethaneFossil": 0.0778063368818,
+        "NitrousOxide": 0.0117888389215
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, EE 2023",
+      "note": "Main activity producers only. 66.02% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.17%; the energy content method, which the guidance permits as an alternative, would move it by 7.8%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     },
     {
       "id": "eurostat-grid-2023/el/public-grid/mwh",
@@ -108,14 +204,14 @@
       "unit": "MegawattHour",
       "basis": "NotApplicable",
       "components": {
-        "CarbonDioxide": 321.857697047,
-        "MethaneFossil": 0.00587674348457,
-        "NitrousOxide": 0.00230872065465
+        "CarbonDioxide": 323.892253273,
+        "MethaneFossil": 0.00591389209142,
+        "NitrousOxide": 0.0023233147502
       },
       "componentsAreDerived": true,
       "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, EL 2023",
-      "note": "Main activity producers only. 98.82% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 1.19%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 99.45% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.01%; the energy content method, which the guidance permits as an alternative, would move it by 0.6%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     },
     {
       "id": "eurostat-grid-2023/es/public-grid/mwh",
@@ -133,7 +229,25 @@
       "componentsAreDerived": true,
       "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, ES 2023",
-      "note": "Main activity producers only. 100.0% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 0.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 100.0% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.0%; the energy content method, which the guidance permits as an alternative, would move it by 0.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/fi/public-grid/mwh",
+      "activity": "Purchased grid electricity — Finland",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "FI",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 87.218449319,
+        "MethaneFossil": 0.0130266064408,
+        "NitrousOxide": 0.0078159638645
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, FI 2023",
+      "note": "Main activity producers only. 77.35% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.09%; the energy content method, which the guidance permits as an alternative, would move it by 4.8%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     },
     {
       "id": "eurostat-grid-2023/fr/public-grid/mwh",
@@ -144,14 +258,50 @@
       "unit": "MegawattHour",
       "basis": "NotApplicable",
       "components": {
-        "CarbonDioxide": 49.3501927063,
-        "MethaneFossil": 0.00239085685196,
-        "NitrousOxide": 0.00160665580451
+        "CarbonDioxide": 49.7236376258,
+        "MethaneFossil": 0.00240894904766,
+        "NitrousOxide": 0.00161881376003
       },
       "componentsAreDerived": true,
       "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, FR 2023",
-      "note": "Main activity producers only. 96.27% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 3.87%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 97.0% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.01%; the energy content method, which the guidance permits as an alternative, would move it by 0.8%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/hr/public-grid/mwh",
+      "activity": "Purchased grid electricity — Croatia",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "HR",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 151.848107421,
+        "MethaneFossil": 0.0251175432008,
+        "NitrousOxide": 0.00502350864016
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, HR 2023",
+      "note": "Main activity producers only. 86.73% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.16%; the energy content method, which the guidance permits as an alternative, would move it by 9.8%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/hu/public-grid/mwh",
+      "activity": "Purchased grid electricity — Hungary",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "HU",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 203.80684518,
+        "MethaneFossil": 0.0203434614817,
+        "NitrousOxide": 0.00357385134139
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, HU 2023",
+      "note": "Main activity producers only. 86.56% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.08%; the energy content method, which the guidance permits as an alternative, would move it by 5.1%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     },
     {
       "id": "eurostat-grid-2023/ie/public-grid/mwh",
@@ -169,7 +319,25 @@
       "componentsAreDerived": true,
       "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, IE 2023",
-      "note": "Main activity producers only. 100.0% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 0.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 100.0% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.0%; the energy content method, which the guidance permits as an alternative, would move it by 0.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/is/public-grid/mwh",
+      "activity": "Purchased grid electricity — Iceland",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "IS",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 0.436343998224,
+        "MethaneFossil": 0.0,
+        "NitrousOxide": 0.0
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, IS 2023",
+      "note": "Main activity producers only. 80.89% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.07%; the energy content method, which the guidance permits as an alternative, would move it by 4.8%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     },
     {
       "id": "eurostat-grid-2023/it/public-grid/mwh",
@@ -180,14 +348,68 @@
       "unit": "MegawattHour",
       "basis": "NotApplicable",
       "components": {
-        "CarbonDioxide": 232.620005332,
-        "MethaneFossil": 0.01362655971,
-        "NitrousOxide": 0.00231476815587
+        "CarbonDioxide": 240.955353048,
+        "MethaneFossil": 0.0141148329056,
+        "NitrousOxide": 0.00239771199999
       },
       "componentsAreDerived": true,
-      "dataQuality": "Proxy",
+      "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, IT 2023",
-      "note": "Main activity producers only. 92.31% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 8.33%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 95.62% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.05%; the energy content method, which the guidance permits as an alternative, would move it by 3.5%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/lt/public-grid/mwh",
+      "activity": "Purchased grid electricity — Lithuania",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "LT",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 68.4134576471,
+        "MethaneFossil": 0.0791112164381,
+        "NitrousOxide": 0.0103510002816
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, LT 2023",
+      "note": "Main activity producers only. 40.16% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.37%; the energy content method, which the guidance permits as an alternative, would move it by 17.4%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/lu/public-grid/mwh",
+      "activity": "Purchased grid electricity — Luxembourg",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "LU",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 44.5578281425,
+        "MethaneFossil": 0.0276039710277,
+        "NitrousOxide": 0.00250945191161
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, LU 2023",
+      "note": "Main activity producers only. 53.81% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.53%; the energy content method, which the guidance permits as an alternative, would move it by 25.4%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/lv/public-grid/mwh",
+      "activity": "Purchased grid electricity — Latvia",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "LV",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 79.0380120604,
+        "MethaneFossil": 0.0568518113442,
+        "NitrousOxide": 0.00787178926304
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, LV 2023",
+      "note": "Main activity producers only. 53.02% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.28%; the energy content method, which the guidance permits as an alternative, would move it by 15.5%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     },
     {
       "id": "eurostat-grid-2023/mt/public-grid/mwh",
@@ -205,7 +427,25 @@
       "componentsAreDerived": true,
       "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, MT 2023",
-      "note": "Main activity producers only. 100.0% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 0.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 100.0% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.0%; the energy content method, which the guidance permits as an alternative, would move it by 0.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/nl/public-grid/mwh",
+      "activity": "Purchased grid electricity — Netherlands",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "NL",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 294.153159132,
+        "MethaneFossil": 0.0383052734127,
+        "NitrousOxide": 0.00730159170624
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, NL 2023",
+      "note": "Main activity producers only. 91.17% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.07%; the energy content method, which the guidance permits as an alternative, would move it by 4.8%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     },
     {
       "id": "eurostat-grid-2023/no/public-grid/mwh",
@@ -216,14 +456,32 @@
       "unit": "MegawattHour",
       "basis": "NotApplicable",
       "components": {
-        "CarbonDioxide": 5.8416206266,
-        "MethaneFossil": 0.00478862143091,
-        "NitrousOxide": 0.000497519109705
+        "CarbonDioxide": 5.86204322143,
+        "MethaneFossil": 0.00480536268844,
+        "NitrousOxide": 0.000499258461136
       },
       "componentsAreDerived": true,
-      "dataQuality": "Proxy",
+      "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, NO 2023",
-      "note": "Main activity producers only. 94.87% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 5.41%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 95.2% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.01%; the energy content method, which the guidance permits as an alternative, would move it by 0.3%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/pl/public-grid/mwh",
+      "activity": "Purchased grid electricity — Poland",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "PL",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 669.569473519,
+        "MethaneFossil": 0.00494768869017,
+        "NitrousOxide": 0.0110760758178
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, PL 2023",
+      "note": "Main activity producers only. 80.09% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.21%; the energy content method, which the guidance permits as an alternative, would move it by 14.2%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     },
     {
       "id": "eurostat-grid-2023/pt/public-grid/mwh",
@@ -234,14 +492,86 @@
       "unit": "MegawattHour",
       "basis": "NotApplicable",
       "components": {
-        "CarbonDioxide": 105.078657031,
-        "MethaneFossil": 0.0100157126605,
-        "NitrousOxide": 0.00667714177368
+        "CarbonDioxide": 105.114580946,
+        "MethaneFossil": 0.0100191367965,
+        "NitrousOxide": 0.00667942453097
       },
       "componentsAreDerived": true,
       "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, PT 2023",
-      "note": "Main activity producers only. 99.94% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 0.06%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 99.97% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.0%; the energy content method, which the guidance permits as an alternative, would move it by 0.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/ro/public-grid/mwh",
+      "activity": "Purchased grid electricity — Romania",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "RO",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 184.772896667,
+        "MethaneFossil": 0.00458041967916,
+        "NitrousOxide": 0.0026425498149
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, RO 2023",
+      "note": "Main activity producers only. 88.01% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.08%; the energy content method, which the guidance permits as an alternative, would move it by 4.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/se/public-grid/mwh",
+      "activity": "Purchased grid electricity — Sweden",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "SE",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 24.9932730186,
+        "MethaneFossil": 0.00957371718159,
+        "NitrousOxide": 0.00338518176587
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, SE 2023",
+      "note": "Main activity producers only. 83.57% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.06%; the energy content method, which the guidance permits as an alternative, would move it by 2.6%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/si/public-grid/mwh",
+      "activity": "Purchased grid electricity — Slovenia",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "SI",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 210.115634136,
+        "MethaneFossil": 0.00829933867814,
+        "NitrousOxide": 0.0038304640053
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, SI 2023",
+      "note": "Main activity producers only. 92.35% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.07%; the energy content method, which the guidance permits as an alternative, would move it by 4.9%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    },
+    {
+      "id": "eurostat-grid-2023/sk/public-grid/mwh",
+      "activity": "Purchased grid electricity — Slovakia",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "region": "SK",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 105.80940824,
+        "MethaneFossil": 0.0161871431143,
+        "NitrousOxide": 0.00297314873527
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, SK 2023",
+      "note": "Main activity producers only. 89.5% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.06%; the energy content method, which the guidance permits as an alternative, would move it by 3.0%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     },
     {
       "id": "eurostat-grid-2023/tr/public-grid/mwh",
@@ -252,14 +582,14 @@
       "unit": "MegawattHour",
       "basis": "NotApplicable",
       "components": {
-        "CarbonDioxide": 470.20237353,
-        "MethaneFossil": 0.00669875824372,
-        "NitrousOxide": 0.0138924986237
+        "CarbonDioxide": 471.446981722,
+        "MethaneFossil": 0.00671648960761,
+        "NitrousOxide": 0.0139292715508
       },
       "componentsAreDerived": true,
       "dataQuality": "Secondary",
       "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, TR 2023",
-      "note": "Main activity producers only. 99.23% of CRF 1.A.1.a emissions allocated to electricity; allocating combined heat and power entirely to electricity instead would move the result by 0.78%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+      "note": "Main activity producers only. 99.49% of CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol efficiency method. Substituting IEA reference efficiencies moves the result by 0.0%; the energy content method, which the guidance permits as an alternative, would move it by 0.3%. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
     }
   ]
 }

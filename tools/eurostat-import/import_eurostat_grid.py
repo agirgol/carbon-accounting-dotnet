@@ -57,17 +57,27 @@ BALANCE = {
 # electricity from.
 AGGREGATES = {"EU27_2020", "EU28", "EA19", "EA20", "EU", "EEA", "EEA30_2007", "EEA31", "EFTA"}
 
-# Above this, the split between electricity and heat is doing enough of the work that
-# the figure deserves to be labelled a proxy rather than a straightforward secondary.
-SENSITIVITY_PROXY_THRESHOLD = 0.05
+# Combined heat and power fuel is split by the GHG Protocol's efficiency method, which
+# that guidance names as its preferred approach: fuel is attributed in proportion to what
+# each output would have consumed if produced separately, so electricity carries its
+# thermodynamic penalty rather than being weighed against heat joule for joule.
+#
+#   share of fuel to electricity  =  (P / eP) / ((P / eP) + (H / eH))
+#
+# The defaults are the values the guidance itself recommends. IEA reference efficiencies
+# are carried alongside purely to measure how much the parameter choice is worth; across
+# every country imported the two disagree by well under one percent, which is what makes
+# the resulting factors publishable at all.
+GHGP_EFFICIENCY = {"electricity": 0.35, "heat": 0.80}
+IEA_EFFICIENCY = {"electricity": 0.40, "heat": 0.90}
 
-# And above this it is not worth shipping at all. A country running large district
-# heating networks reports most of CRF 1.A.1.a against heat, so the grid factor comes
-# out of the allocation convention rather than out of the data: for Lithuania, giving
-# combined heat and power entirely to electricity would triple the answer. Publishing
-# that under a citation would be worse than publishing nothing, because the citation
-# implies a precision the number does not have.
-SENSITIVITY_SHIP_THRESHOLD = 0.10
+# Above this, the parameter choice inside the preferred method is doing enough of the
+# work that the figure deserves to be labelled a proxy.
+SENSITIVITY_PROXY_THRESHOLD = 0.02
+
+# And above this it is not worth shipping at all: the answer would be coming out of the
+# convention rather than out of the data.
+SENSITIVITY_SHIP_THRESHOLD = 0.05
 
 # Eurostat rounds these series to two decimals. Below roughly a kilotonne the ratio of
 # the CO2e series to the mass series is dominated by that rounding, so a single country
@@ -185,10 +195,20 @@ def main():
             skipped[geo] = "No main activity fuel input or generation to divide by."
             continue
 
-        chp_electricity_share = balances["electricity_chp"] / chp_output if chp_output else 0.0
-        fuel_for_electricity = (balances["fuel_electricity_only"]
-                                + balances["fuel_chp"] * chp_electricity_share)
-        electricity_share = fuel_for_electricity / fuel_total
+        def electricity_share_of_emissions(efficiency):
+            """Share of CRF 1.A.1.a emissions attributable to electricity."""
+            power, heat = balances["electricity_chp"], balances["heat_chp"]
+            if power + heat <= 0:
+                chp_share = 0.0
+            else:
+                weighted_power = power / efficiency["electricity"]
+                weighted_heat = heat / efficiency["heat"]
+                chp_share = weighted_power / (weighted_power + weighted_heat)
+            return (balances["fuel_electricity_only"]
+                    + balances["fuel_chp"] * chp_share) / fuel_total
+
+        electricity_share = electricity_share_of_emissions(GHGP_EFFICIENCY)
+        chp_electricity_share = electricity_share
 
         # Thousand tonnes over GWh is kg per MWh: 1e6 kg over 1e3 MWh.
         def per_mwh(share):
@@ -197,20 +217,29 @@ def main():
 
         components = per_mwh(electricity_share)
 
-        # How much of the answer rests on the allocation: compare against giving the
-        # combined heat and power plants entirely to electricity.
-        alternative = per_mwh(1.0)
-        chosen_co2e = sum(components[m] * (1.0 if m == "CarbonDioxide" else AR5[GASES[m]])
-                          for m in components)
-        alternative_co2e = sum(alternative[m] * (1.0 if m == "CarbonDioxide" else AR5[GASES[m]])
-                               for m in alternative)
-        sensitivity = abs(alternative_co2e - chosen_co2e) / chosen_co2e if chosen_co2e else 0.0
+        def co2e(share):
+            values = per_mwh(share)
+            return sum(values[m] * (1.0 if m == "CarbonDioxide" else AR5[GASES[m]])
+                       for m in values)
+
+        # How much the answer rests on the parameter choice, measured between two
+        # published sets of reference efficiencies rather than against an invented
+        # alternative. Also recorded: what the energy content method, which the guidance
+        # permits as an alternative, would give.
+        chosen_co2e = co2e(electricity_share)
+        iea_co2e = co2e(electricity_share_of_emissions(IEA_EFFICIENCY))
+        energy_content_co2e = co2e(
+            electricity_share_of_emissions({"electricity": 1.0, "heat": 1.0}))
+
+        sensitivity = abs(iea_co2e - chosen_co2e) / chosen_co2e if chosen_co2e else 0.0
+        alternative_method_gap = (abs(energy_content_co2e - chosen_co2e) / chosen_co2e
+                                  if chosen_co2e else 0.0)
 
         if sensitivity > SENSITIVITY_SHIP_THRESHOLD:
             skipped[geo] = (
-                f"Combined heat and power allocation drives the result: giving CHP fuel "
-                f"entirely to electricity would move it by {round(sensitivity * 100, 1)}%, "
-                f"so the figure would reflect the convention more than the data.")
+                f"The two published sets of reference efficiencies disagree by "
+                f"{round(sensitivity * 100, 1)}% for this country, so the figure would "
+                f"reflect the parameter choice more than the data.")
             continue
 
         quality = "Proxy" if sensitivity > SENSITIVITY_PROXY_THRESHOLD else "Secondary"
@@ -232,11 +261,13 @@ def main():
             "sourceReference": f"Eurostat env_air_gge CRF1A1A and nrg_bal_c, {geo} {year}",
             "note": (
                 f"Main activity producers only. {round(electricity_share * 100, 2)}% of "
-                f"CRF 1.A.1.a emissions allocated to electricity; allocating combined heat "
-                f"and power entirely to electricity instead would move the result by "
-                f"{round(sensitivity * 100, 2)}%. Methane is treated as fossil, which the "
-                "generation mix makes overwhelmingly true, though the inventory figure "
-                "includes a small biomass-derived share."
+                f"CRF 1.A.1.a emissions allocated to electricity by the GHG Protocol "
+                f"efficiency method. Substituting IEA reference efficiencies moves the "
+                f"result by {round(sensitivity * 100, 2)}%; the energy content method, "
+                f"which the guidance permits as an alternative, would move it by "
+                f"{round(alternative_method_gap * 100, 1)}%. Methane is treated as fossil, "
+                "which the generation mix makes overwhelmingly true, though the inventory "
+                "figure includes a small biomass-derived share."
             ),
         })
 
@@ -296,22 +327,21 @@ def main():
             "notes": (
                 "THESE FACTORS ARE DERIVED, NOT PUBLISHED. No authority publishes them; "
                 "they are computed here from two published series following the European "
-                "Environment Agency's own indicator method. Two choices shape every value. "
+                "Environment Agency's own indicator method. Two choices shape every value, "
+                "and neither is this repository's invention. "
                 "First, CRF 1.A.1.a covers public electricity AND heat, so combined heat "
-                "and power fuel is allocated in proportion to the plant's electricity and "
-                "heat output. How much that choice matters varies by country and is "
-                "measured per factor. Where allocating CHP entirely to electricity would "
-                f"move the result by more than {int(SENSITIVITY_PROXY_THRESHOLD * 100)}%, "
-                "the factor is marked Proxy rather than Secondary; where it would move it "
-                f"by more than {int(SENSITIVITY_SHIP_THRESHOLD * 100)}%, no factor is "
-                "published for that country at all, because the answer would come out of "
-                "the convention rather than out of the data. Countries running large "
-                "district heating networks fall into that group, and the omissions are "
-                "listed below with their measured sensitivity. Every published factor's "
-                "note carries its own figure. Second, the numerator covers main activity "
-                "producers only, so the denominator excludes autoproducers to keep the "
-                "boundary consistent; using total national generation instead would lower "
-                "the figures materially. "
+                "and power fuel is split by the efficiency method that the GHG Protocol's "
+                "CHP allocation guidance names as its preferred approach: fuel is "
+                "attributed in proportion to what each output would have consumed if "
+                "produced separately, using that guidance's own recommended efficiencies "
+                "of 35% for electricity and 80% for heat. Substituting the IEA's reference "
+                "efficiencies of 40% and 90% moves every country imported here by well "
+                "under one percent, and each factor's note carries its own figure along "
+                "with what the energy content method, which the guidance permits as an "
+                "alternative, would have given. "
+                "Second, the numerator covers main activity producers only, so the "
+                "denominator excludes autoproducers to keep the boundary consistent; using "
+                "total national generation instead would lower the figures materially. "
                 + (f"Countries omitted for want of complete series: "
                    f"{', '.join(sorted(skipped))}. " if skipped else "")
             ),
@@ -320,6 +350,11 @@ def main():
                 "countries_skipped": skipped,
                 "recovered_gwp_mean": averages,
                 "proxy_quality_countries": {geo: round(s, 4) for geo, s in sorted(proxies)},
+                "chp_allocation": {
+                    "method": "GHG Protocol CHP guidance, efficiency method (its preferred method)",
+                    "reference_efficiencies": GHGP_EFFICIENCY,
+                    "sensitivity_measured_against": IEA_EFFICIENCY,
+                },
             },
             "sourceUrls": urls,
         },

@@ -45,8 +45,8 @@ public class EurostatGridTests
     }
 
     [Theory]
-    [InlineData(Turkiye, 474.1)]
-    [InlineData(France, 49.8)]
+    [InlineData(Turkiye, 475.3)]
+    [InlineData(France, 50.2)]
     [InlineData(Norway, 6.1)]
     public void Intensities_MatchTheDerivation(string id, double expected)
     {
@@ -74,27 +74,29 @@ public class EurostatGridTests
     }
 
     [Fact]
-    public void CountriesWhereTheAllocationDrivesTheAnswer_AreNotPublished()
+    public void DistrictHeatingCountries_ArePublished()
     {
         var published = Set.Factors.Select(f => f.Region).ToHashSet();
 
-        // Denmark, Lithuania and Latvia run large district heating networks, so most of
-        // their CRF 1.A.1.a emissions sit against heat and the grid factor would come out
-        // of the allocation convention rather than out of the data. The importer measures
-        // that and declines to publish rather than shipping a citable guess.
-        Assert.DoesNotContain("DK", published);
-        Assert.DoesNotContain("LT", published);
-        Assert.DoesNotContain("LV", published);
+        // Denmark, Lithuania and Latvia run large district heating networks. Under a
+        // convention this repository picked for itself they were not publishable; under
+        // the efficiency method the GHG Protocol's own CHP guidance prefers, the two
+        // published sets of reference efficiencies agree to well under a percent, so the
+        // figures rest on the data rather than on the choice.
+        Assert.Contains("DK", published);
+        Assert.Contains("LT", published);
+        Assert.Contains("LV", published);
+        Assert.Contains("DE", published);
     }
 
     [Fact]
-    public void FactorsSensitiveToTheAllocation_AreDowngradedToProxy()
+    public void EveryFactor_DisclosesWhatTheAllocationChoiceIsWorth()
     {
-        // Everything published is within the tolerance, but the ones nearer the edge say
-        // so through their data quality rather than looking as solid as the rest.
-        Assert.Contains(Set.Factors, f => f.DataQuality == DataQuality.Proxy);
-        Assert.Contains(Set.Factors, f => f.DataQuality == DataQuality.Secondary);
-        Assert.All(Set.Factors, f => Assert.Contains("would move the result by", f.Note));
+        // The note carries both numbers: how much swapping the reference efficiencies
+        // moves the result, and how much the alternative method the guidance permits
+        // would move it. A reader can judge the figure without re-deriving it.
+        Assert.All(Set.Factors, f => Assert.Contains("efficiency method", f.Note));
+        Assert.All(Set.Factors, f => Assert.Contains("energy content method", f.Note));
     }
 
     [Fact]

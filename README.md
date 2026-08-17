@@ -15,7 +15,7 @@ time, so consuming this library adds exactly one package to your graph and nothi
 > The AR5 and AR6 GWP sets are verified value by value against the IPCC tables they cite.
 > Three factor sets ship, none of them transcribed by hand: 893 UK DESNZ 2026 factors
 > spanning fuels, electricity, transport, waste, water and materials; 27 US EPA eGRID
-> subregion grid factors; and 11 national grid factors derived from Eurostat, with the
+> subregion grid factors; and 30 national grid factors derived from Eurostat, with the
 > method and every input recorded in the set. Coverage outside those three publishers is
 > still thin. Every set exposes its own `VerificationStatus` at run time, and
 > `dotnet pack -p:GhgRequireVerifiedCatalog=true` refuses to build a package
@@ -193,15 +193,25 @@ have no published grid factor at all. One can be computed from published statist
 and then the set records the method, every input value, and the endpoint each came from,
 so a reader can redo the arithmetic without trusting this repository.
 
-But a derivation should also measure how much of the answer is its own convention rather
-than the data. National inventories report public electricity *and heat* together, so the
-heat has to be allocated out. The importer computes what that choice is worth per country:
-in Türkiye it moves the result by 0.8%, in Lithuania by 201%. Where it exceeds 5% the
-factor is marked `Proxy`; where it exceeds 10% no factor is published at all, and the
-country is listed in the set with its measured sensitivity. Twenty countries with large
-district heating networks are excluded on that test. A number governed more by an
-accounting convention than by the underlying statistics is not made trustworthy by having
-a citation attached.
+But a derivation should not invent its own convention where a standard already has one.
+National inventories report public electricity *and heat* together, so the heat has to be
+allocated out. That split uses the **efficiency method the GHG Protocol's own CHP
+guidance names as its preferred approach**: fuel is attributed in proportion to what each
+output would have consumed produced separately, at that guidance's recommended
+efficiencies of 35% for electricity and 80% for heat. Electricity therefore carries its
+thermodynamic penalty instead of being weighed against heat joule for joule.
+
+The importer still measures what the choice is worth, but between *published* parameter
+sets rather than against an invented alternative: substituting the IEA's reference
+efficiencies of 40% and 90% moves every country by under 0.5%. Each factor's note carries
+its own figure, along with what the energy content method — permitted by the guidance as
+an alternative — would have given, which for district-heating countries differs by up to
+17%. Where the published sets disagree by more than 2% a factor is marked `Proxy`, and
+above 5% it is not published.
+
+This replaced an earlier rule of this repository's own devising, which excluded twenty
+countries. That rule was measuring the wrong thing: how far an absurd alternative would
+move the answer, rather than how far the defensible ones disagree.
 
 **Fossil and biogenic methane are different gases.** AR6 gives them 29.8 and 27.0; AR5
 gives 30 and 28. A single `Methane` member would force the library to pick one silently.
@@ -244,7 +254,7 @@ redistribution licence, and whether the values have been checked against that so
 | `Ar6` | IPCC AR6 WG1 Ch.7, Table 7.15 and Supplementary Table 7.SM.7 | 2021 | Factual constants, reproduced with attribution | ✅ `verified` |
 | `defra-2026` | UK DESNZ conversion factors 2026, flat file (revised 31 July 2026) | 2026 | Open Government Licence v3.0 | ✅ `verified` |
 | `egrid-2023` | US EPA eGRID2023 Rev. 2, subregion annual total output rates | 2025 | US Government work, public domain | ✅ `verified` |
-| `eurostat-grid-2023` | **Derived**: Eurostat `env_air_gge` CRF 1.A.1.a ÷ `nrg_bal_c`, 11 countries | 2023 | Eurostat reuse policy, with acknowledgement | ✅ `verified` |
+| `eurostat-grid-2023` | **Derived**: Eurostat `env_air_gge` CRF 1.A.1.a ÷ `nrg_bal_c`, 30 countries | 2023 | Eurostat reuse policy, with acknowledgement | ✅ `verified` |
 | `example-fuels`, `example-value-chain` | None — synthetic values authored for this repository | — | MIT, same as the code | 🚫 `placeholder` |
 
 The DESNZ and eGRID sets are **generated, not transcribed**. `tools/defra-import/import_defra.py`
@@ -371,8 +381,7 @@ Named here so nobody has to read the source to find out:
 | AR5 and AR6 GWP sets verified against the IPCC tables | ✅ |
 | UK DESNZ 2026: 893 factors, machine-generated, categories excluded by decision | ✅ |
 | US EPA eGRID 2023: 27 subregion grid factors, published per gas | ✅ |
-| 11 national grid factors derived from Eurostat, method and inputs disclosed | ✅ |
-| Grid factors for district-heating countries, given a defensible CHP convention | 🚧 next |
+| 30 national grid factors derived from Eurostat, by the GHG Protocol's CHP method | ✅ |
 
 ## Repository layout
 
