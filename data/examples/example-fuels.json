@@ -1,0 +1,77 @@
+{
+  "$schema": "../schema/factor-set.schema.json",
+  "id": "example-fuels",
+  "name": "EXAMPLE — synthetic fuel combustion factors (NOT REAL DATA)",
+  "region": "GLOBAL",
+  "source": {
+    "publisher": "carbon-accounting-dotnet",
+    "title": "Synthetic values authored to exercise the catalog pipeline. Not derived from any published dataset.",
+    "publicationYear": 2026,
+    "license": "MIT (same as the library) — these are invented numbers, not third-party data."
+  },
+  "verification": {
+    "status": "placeholder",
+    "method": "None. This set exists only so the generator, the unit layer and the tests have something to compile against.",
+    "notes": "The release build refuses to pack any set whose status is not 'verified'. Replace this with a real, licence-cleared set (DEFRA/DESNZ under OGL v3, EPA eGRID public domain, Ember CC-BY-4.0) before publishing."
+  },
+  "factors": [
+    {
+      "id": "example-fuels/natural-gas/gcv/kwh",
+      "activity": "NaturalGas",
+      "scope": "Scope1",
+      "unit": "KilowattHour",
+      "basis": "GrossCalorificValue",
+      "components": {
+        "CarbonDioxide": 0.18,
+        "MethaneFossil": 0.0003,
+        "NitrousOxide": 0.0001
+      },
+      "dataQuality": "Secondary",
+      "uncertaintyPercent": 5.0,
+      "note": "SYNTHETIC. Order of magnitude only."
+    },
+    {
+      "id": "example-fuels/diesel/litre",
+      "activity": "Diesel",
+      "scope": "Scope1",
+      "unit": "Litre",
+      "basis": "GrossCalorificValue",
+      "components": {
+        "CarbonDioxide": 2.6,
+        "MethaneFossil": 0.0001,
+        "NitrousOxide": 0.00002
+      },
+      "dataQuality": "Secondary",
+      "uncertaintyPercent": 5.0,
+      "note": "SYNTHETIC. Order of magnitude only."
+    },
+    {
+      "id": "example-fuels/grid-electricity/location-based/kwh",
+      "activity": "GridElectricity",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "unit": "KilowattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 0.4
+      },
+      "dataQuality": "Secondary",
+      "uncertaintyPercent": 10.0,
+      "note": "SYNTHETIC. A real location-based factor is grid- and year-specific."
+    },
+    {
+      "id": "example-fuels/grid-electricity/market-based-residual/kwh",
+      "activity": "GridElectricity",
+      "scope": "Scope2",
+      "scope2Method": "MarketBased",
+      "unit": "KilowattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 0.52
+      },
+      "dataQuality": "Secondary",
+      "uncertaintyPercent": 10.0,
+      "note": "SYNTHETIC residual mix. Deliberately higher than the location-based value so dual-reporting tests show a real divergence."
+    }
+  ]
+}

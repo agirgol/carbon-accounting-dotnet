@@ -1,0 +1,97 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish, without the leading v (e.g. 0.2.0)"
+        required: true
+
+permissions:
+  contents: write # create the GitHub release
+  id-token: write # request the OIDC token that nuget.org exchanges for a short-lived key
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  release:
+    name: Pack and publish
+    runs-on: ubuntu-latest
+
+    # Publishing to nuget.org is irreversible: a version can be unlisted but never
+    # deleted. Routing the job through an environment gives that step a place to hang a
+    # required-reviewer rule. The name must match the Environment field of the nuget.org
+    # trusted publishing policy.
+    environment: release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            version="${{ github.event.inputs.version }}"
+          else
+            version="${GITHUB_REF_NAME#v}"
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+          echo "Publishing $version"
+
+      - name: Restore
+        run: dotnet restore CarbonAccounting.slnx
+
+      - name: Build
+        run: dotnet build CarbonAccounting.slnx -c Release --no-restore -p:Version=${{ steps.version.outputs.value }}
+
+      - name: Test
+        run: dotnet test CarbonAccounting.slnx -c Release --no-build
+
+      # CarbonRequireVerifiedCatalog turns CARB006 into the CARB005 error, so a package
+      # containing emission factors that nobody has checked against their cited source
+      # cannot be produced at all — the build fails before anything is uploaded.
+      - name: Pack with the verified-catalog gate
+        run: >
+          dotnet pack src/CarbonAccounting/CarbonAccounting.csproj
+          -c Release
+          -o ./artifacts
+          -p:Version=${{ steps.version.outputs.value }}
+          -p:CarbonRequireVerifiedCatalog=true
+
+      # Trusted Publishing: GitHub issues a signed OIDC token, nuget.org validates it
+      # against the policy registered for this repository and workflow file, and returns
+      # an API key valid for one hour. No long-lived secret is stored anywhere.
+      # The key is requested here, immediately before the push, so it cannot expire in
+      # transit.
+      - name: NuGet login
+        id: nuget_login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push to NuGet
+        run: >
+          dotnet nuget push "./artifacts/*.nupkg"
+          --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "v${{ steps.version.outputs.value }}"
+          ./artifacts/*.nupkg
+          --title "v${{ steps.version.outputs.value }}"
+          --generate-notes

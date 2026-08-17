@@ -1,0 +1,66 @@
+{
+  "$schema": "../schema/factor-set.schema.json",
+  "id": "example-value-chain",
+  "name": "EXAMPLE — synthetic value chain and biomass factors (NOT REAL DATA)",
+  "region": "GLOBAL",
+  "source": {
+    "publisher": "carbon-accounting-dotnet",
+    "title": "Synthetic values authored to exercise Scope 3 categorisation and biogenic carbon separation. Not derived from any published dataset.",
+    "publicationYear": 2026,
+    "license": "MIT (same as the library) — these are invented numbers, not third-party data."
+  },
+  "verification": {
+    "status": "placeholder",
+    "method": "None. Exists only so the calculation engine and its tests have Scope 3 and biogenic cases to work against.",
+    "notes": "Excluded from the build whenever CarbonRequireVerifiedCatalog is set, so it can never reach a published package."
+  },
+  "factors": [
+    {
+      "id": "example-value-chain/business-travel/air-short-haul/passenger-km",
+      "activity": "AirTravelShortHaul",
+      "scope": "Scope3",
+      "scope3Category": 6,
+      "unit": "PassengerKilometre",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 0.15,
+        "MethaneFossil": 0.000002,
+        "NitrousOxide": 0.0000015
+      },
+      "dataQuality": "Secondary",
+      "uncertaintyPercent": 20.0,
+      "note": "SYNTHETIC. GHG Protocol Scope 3 category 6, business travel."
+    },
+    {
+      "id": "example-value-chain/upstream-transport/road-freight/tonne-km",
+      "activity": "RoadFreight",
+      "scope": "Scope3",
+      "scope3Category": 4,
+      "unit": "TonneKilometre",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 0.11,
+        "MethaneFossil": 0.000004,
+        "NitrousOxide": 0.000003
+      },
+      "dataQuality": "Proxy",
+      "uncertaintyPercent": 35.0,
+      "note": "SYNTHETIC. GHG Protocol Scope 3 category 4, upstream transportation and distribution."
+    },
+    {
+      "id": "example-value-chain/biomass/wood-pellets/kwh",
+      "activity": "WoodPellets",
+      "scope": "Scope1",
+      "unit": "KilowattHour",
+      "basis": "NetCalorificValue",
+      "components": {
+        "MethaneBiogenic": 0.00002,
+        "NitrousOxide": 0.000006
+      },
+      "biogenicCarbonKg": 0.39,
+      "dataQuality": "Secondary",
+      "uncertaintyPercent": 15.0,
+      "note": "SYNTHETIC. Biomass combustion: CH4 and N2O count towards Scope 1, while the CO2 released is biogenic and is reported outside the scope totals."
+    }
+  ]
+}

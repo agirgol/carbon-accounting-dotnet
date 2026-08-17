@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/agirgol/carbon-accounting-dotnet/data/schema/gwp-set.schema.json",
+  "title": "Global Warming Potential set",
+  "description": "A single, citable set of GWP values (one IPCC assessment report, one time horizon).",
+  "type": "object",
+  "required": ["id", "name", "timeHorizonYears", "source", "verification", "values"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+      "description": "Stable identifier; must match a member of the GwpSet enum (e.g. Ar5, Ar6)."
+    },
+    "name": { "type": "string" },
+    "timeHorizonYears": {
+      "type": "integer",
+      "enum": [20, 100, 500],
+      "description": "GHG Protocol corporate reporting uses the 100-year horizon."
+    },
+    "includesClimateCarbonFeedback": {
+      "type": "boolean",
+      "description": "IPCC publishes GWP values with and without climate-carbon feedback. GHG Protocol inventories use the values WITHOUT feedback; mixing the two silently changes results."
+    },
+    "source": { "$ref": "#/$defs/source" },
+    "verification": { "$ref": "#/$defs/verification" },
+    "values": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["gas", "gwp"],
+        "additionalProperties": false,
+        "properties": {
+          "gas": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Za-z0-9]*$",
+            "description": "Must match a member of the GreenhouseGas enum."
+          },
+          "formula": { "type": "string" },
+          "casNumber": { "type": "string" },
+          "gwp": { "type": "number", "exclusiveMinimum": 0 },
+          "sourceTable": {
+            "type": "string",
+            "description": "The exact table this value was read from, when a set draws on more than one table of the same report. AR6 is the case in point: its headline metrics table covers only a few species, and the rest come from the supplementary table."
+          },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["publisher", "title", "publicationYear"],
+      "additionalProperties": false,
+      "properties": {
+        "publisher": { "type": "string" },
+        "title": {
+          "type": "string",
+          "description": "Cite the exact table, not just the report (e.g. 'AR6 WG1 Ch.7, Table 7.SM.7')."
+        },
+        "publicationYear": { "type": "integer", "minimum": 1990 },
+        "url": { "type": "string", "format": "uri" },
+        "license": {
+          "type": "string",
+          "description": "Redistribution terms for these values. A set with no clear licence must not ship."
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["verified", "needs-review", "placeholder"],
+          "description": "Only 'verified' sets are allowed into a release build. See tools/verify-catalog."
+        },
+        "verifiedBy": { "type": "string" },
+        "verifiedOn": { "type": "string", "format": "date" },
+        "method": {
+          "type": "string",
+          "description": "How the values were checked against the primary source."
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

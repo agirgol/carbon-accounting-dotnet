@@ -1,0 +1,31 @@
+## Build output
+bin/
+obj/
+artifacts/
+coverage/
+TestResults/
+*.binlog
+
+## Rider / Visual Studio / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+*.userprefs
+.vscode/
+
+## macOS / Windows
+.DS_Store
+Thumbs.db
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+!NuGet.config
+
+## Local tool downloads used by the catalog importers. The published source files are
+## large and are fetched on demand; only the generated JSON belongs in the repository.
+tools/**/downloads/
+*.xlsx
+*.xls

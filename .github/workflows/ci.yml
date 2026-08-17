@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  MINIMUM_LINE_COVERAGE: "80"
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 8.0.x is installed as well as 10.0.x so the net8.0 test leg runs on the real
+      # .NET 8 runtime rather than rolling forward, which is the whole point of
+      # multi-targeting in the first place.
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Restore
+        run: dotnet restore CarbonAccounting.slnx
+
+      - name: Verify formatting
+        run: dotnet format CarbonAccounting.slnx --verify-no-changes --no-restore
+
+      - name: Build
+        run: dotnet build CarbonAccounting.slnx -c Release --no-restore
+
+      - name: Test with coverage
+        run: >
+          dotnet test CarbonAccounting.slnx
+          -c Release
+          --no-build
+          --collect:"XPlat Code Coverage"
+          --results-directory ./coverage
+          --logger "trx;LogFileName=results.trx"
+
+      - name: Enforce coverage floor
+        run: |
+          python3 - <<'PY'
+          import glob, os, sys, xml.etree.ElementTree as ET
+
+          floor = float(os.environ["MINIMUM_LINE_COVERAGE"])
+          reports = glob.glob("coverage/**/coverage.cobertura.xml", recursive=True)
+          if not reports:
+              sys.exit("No coverage report was produced.")
+
+          failed = False
+          for report in sorted(reports):
+              rate = float(ET.parse(report).getroot().get("line-rate")) * 100
+              status = "ok" if rate >= floor else "BELOW FLOOR"
+              print(f"{rate:6.2f}%  {status}  {report}")
+              failed |= rate < floor
+
+          if failed:
+              sys.exit(f"Line coverage is below the {floor:.0f}% floor.")
+          PY
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/**/coverage.cobertura.xml
+          if-no-files-found: warn
+
+      # Packs without the verified-catalog gate, so CI stays green while factor data is
+      # still being checked. The release workflow packs with the gate on.
+      - name: Pack (smoke)
+        run: dotnet pack src/CarbonAccounting/CarbonAccounting.csproj -c Release --no-build -o ./artifacts
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: ./artifacts/*.nupkg

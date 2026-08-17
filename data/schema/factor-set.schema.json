@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/agirgol/carbon-accounting-dotnet/data/schema/factor-set.schema.json",
+  "title": "Emission factor set",
+  "description": "A versioned, citable collection of emission factors from ONE publisher and ONE publication year.",
+  "type": "object",
+  "required": ["id", "name", "source", "verification", "factors"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Kebab-case, includes the publication year (e.g. 'defra-2024-fuels')."
+    },
+    "name": { "type": "string" },
+    "region": {
+      "type": "string",
+      "description": "ISO 3166-1 alpha-2, or 'GLOBAL'. Applying a regional factor outside its region is the single most common inventory error."
+    },
+    "validFrom": { "type": "string", "format": "date" },
+    "validTo": { "type": "string", "format": "date" },
+    "source": { "$ref": "gwp-set.schema.json#/$defs/source" },
+    "verification": { "$ref": "gwp-set.schema.json#/$defs/verification" },
+    "factors": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/factor" }
+    }
+  },
+  "$defs": {
+    "factor": {
+      "type": "object",
+      "required": ["id", "activity", "scope", "unit", "dataQuality"],
+      "additionalProperties": false,
+      "anyOf": [
+        { "required": ["components"] },
+        { "required": ["publishedCo2eKgPerUnit", "publishedGwpBasis"] }
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Globally unique, stable across releases. Never reuse an id with a changed value — publish a new id instead."
+        },
+        "activity": { "type": "string" },
+        "scope": {
+          "type": "string",
+          "enum": ["Scope1", "Scope2", "Scope3"]
+        },
+        "scope3Category": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 15,
+          "description": "GHG Protocol Scope 3 Standard category number."
+        },
+        "scope2Method": {
+          "type": "string",
+          "enum": ["LocationBased", "MarketBased"],
+          "description": "Required for Scope 2. The GHG Protocol Scope 2 Guidance mandates dual reporting; a factor is only valid for one method."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Denominator unit of the activity data. Must match a member of the Unit enum."
+        },
+        "basis": {
+          "type": "string",
+          "enum": ["GrossCalorificValue", "NetCalorificValue", "NotApplicable"],
+          "description": "GCV (higher heating value) vs NCV (lower heating value). Mixing bases misstates fuel emissions by roughly 5-10%."
+        },
+        "components": {
+          "type": "object",
+          "description": "Mass of each gas emitted per one activity unit, in kilograms. Kept per-gas (not pre-aggregated to CO2e) so the GWP set stays a caller choice.",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[A-Z][A-Za-z0-9]*$": { "type": "number", "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "componentsAreDerived": {
+          "type": "boolean",
+          "description": "True when the per-gas split was reconstructed rather than published as gas masses. Most publishers report the split already multiplied by their own GWPs, so recovering the masses means dividing those back out."
+        },
+        "publishedCo2eKgPerUnit": {
+          "type": "number",
+          "minimum": 0,
+          "description": "The CO2e figure the publisher printed, per activity unit. Kept so a caller can reproduce the publisher's own total exactly. Required when no gas breakdown exists at all, which is the normal case for well-to-tank and other value-chain factors."
+        },
+        "publishedGwpBasis": {
+          "type": "string",
+          "enum": ["Ar4", "Ar5", "Ar6"],
+          "description": "The assessment report the publisher aggregated publishedCo2eKgPerUnit under. Without it the figure cannot be placed in an inventory, because CO2e is meaningless until you know which GWP set produced it."
+        },
+        "sourceReference": {
+          "type": "string",
+          "description": "The publisher's own identifier for this row, so a reader can find it in the original file."
+        },
+        "biogenicCarbonKg": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Biogenic CO2 per activity unit. Reported separately from the scope totals under the GHG Protocol, never added into them."
+        },
+        "dataQuality": {
+          "type": "string",
+          "enum": ["Primary", "Secondary", "Proxy", "Estimated"]
+        },
+        "uncertaintyPercent": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Relative standard uncertainty (%) as published, for ISO 14064-1 uncertainty assessment."
+        },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/gwp-set.schema.json",
+  "id": "Ar5",
+  "name": "IPCC Fifth Assessment Report — GWP-100",
+  "timeHorizonYears": 100,
+  "includesClimateCarbonFeedback": false,
+  "source": {
+    "publisher": "IPCC",
+    "title": "AR5 WG1, Chapter 8, Appendix 8.A, Table 8.A.1 — GWP-100 column. Climate-carbon feedbacks are included for CO2 only; the analogous values including feedbacks for non-CO2 emissions are in Supplementary Material Table 8.SM.16 and are deliberately not used here.",
+    "publicationYear": 2013,
+    "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/WG1AR5_Chapter08_FINAL.pdf",
+    "license": "Factual constants reproduced with attribution; IPCC permits reproduction of AR figures/tables with citation."
+  },
+  "verification": {
+    "status": "verified",
+    "verifiedBy": "Ege Ağırgöl",
+    "verifiedOn": "2026-08-15",
+    "method": "Text extracted from the IPCC AR5 WG1 Chapter 8 PDF with pdftotext -layout, then every value compared against the GWP 100-year column of Table 8.A.1. All 14 values matched. The set-level climate-carbon feedback flag was checked against the table caption, which states that feedbacks are included for CO2 while no climate feedbacks are included for the other components.",
+    "notes": "AR5 remains the mandated set under several national reporting regimes, which is why it ships alongside AR6."
+  },
+  "values": [
+    {
+      "gas": "CarbonDioxide",
+      "formula": "CO2",
+      "gwp": 1,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1",
+      "note": "Reference gas by definition."
+    },
+    {
+      "gas": "MethaneFossil",
+      "formula": "CH4",
+      "gwp": 30,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1",
+      "note": "The table's 'Fossil methane' row. Higher than the general methane value because oxidation of fossil-origin methane adds fossil CO2."
+    },
+    {
+      "gas": "MethaneBiogenic",
+      "formula": "CH4",
+      "gwp": 28,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1",
+      "note": "The table's plain 'Methane' row. AR5 names only the fossil variant explicitly, so this row is the non-fossil value; AR6 labels the equivalent row 'CH4-non fossil'. This library's MethaneBiogenic member maps to both."
+    },
+    {
+      "gas": "NitrousOxide",
+      "formula": "N2O",
+      "gwp": 265,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    },
+    {
+      "gas": "SulfurHexafluoride",
+      "formula": "SF6",
+      "gwp": 23500,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    },
+    {
+      "gas": "NitrogenTrifluoride",
+      "formula": "NF3",
+      "gwp": 16100,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    },
+    {
+      "gas": "Hfc23",
+      "formula": "CHF3",
+      "gwp": 12400,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    },
+    {
+      "gas": "Hfc32",
+      "formula": "CH2F2",
+      "gwp": 677,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    },
+    {
+      "gas": "Hfc125",
+      "formula": "CHF2CF3",
+      "gwp": 3170,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    },
+    {
+      "gas": "Hfc134a",
+      "formula": "CH2FCF3",
+      "gwp": 1300,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    },
+    {
+      "gas": "Hfc143a",
+      "formula": "CH3CF3",
+      "gwp": 4800,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    },
+    {
+      "gas": "Hfc152a",
+      "formula": "CH3CHF2",
+      "gwp": 138,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    },
+    {
+      "gas": "Pfc14",
+      "formula": "CF4",
+      "gwp": 6630,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    },
+    {
+      "gas": "Pfc116",
+      "formula": "C2F6",
+      "gwp": 11100,
+      "sourceTable": "AR5 WG1 Ch.8 Table 8.A.1"
+    }
+  ]
+}

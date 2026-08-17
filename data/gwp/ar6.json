@@ -1,0 +1,114 @@
+{
+  "$schema": "../schema/gwp-set.schema.json",
+  "id": "Ar6",
+  "name": "IPCC Sixth Assessment Report — GWP-100",
+  "timeHorizonYears": 100,
+  "includesClimateCarbonFeedback": true,
+  "source": {
+    "publisher": "IPCC",
+    "title": "AR6 WG1, Chapter 7 — GWP-100. CO2, methane and N2O are taken from Table 7.15, whose values include carbon cycle responses and the chemical effects of CH4 and N2O; the remaining species are taken from Supplementary Material Table 7.SM.7, which Table 7.15 names as the full table and which agrees with it for every halogenated species. Per-value citations are recorded on each entry.",
+    "publicationYear": 2021,
+    "url": "https://www.ipcc.ch/report/ar6/wg1/downloads/report/IPCC_AR6_WGI_Chapter07.pdf",
+    "license": "Factual constants reproduced with attribution; IPCC permits reproduction of AR figures/tables with citation."
+  },
+  "verification": {
+    "status": "verified",
+    "verifiedBy": "Ege Ağırgöl",
+    "verifiedOn": "2026-08-15",
+    "method": "Text extracted from the IPCC AR6 WG1 Chapter 7 and Chapter 7 Supplementary Material PDFs with pdftotext -layout, then every value compared against the GWP-100 column of the table cited on that value. All 14 values matched. Verification also corrected the set-level citation and the climate-carbon feedback flag: the original entry cited Table 7.SM.7 for methane, but that table publishes a single CH4 value of 27.9 with no fossil / non-fossil split, because it deliberately excludes the carbon content of the methane. The 29.8 and 27.0 values are from Table 7.15.",
+    "notes": "AR6 differs from AR5 in including carbon cycle responses in its headline emission metrics, so this set is flagged as including climate-carbon feedback while AR5 is not. Table 7.15 gives HFC-134a as 1526 and Table 7.SM.7 as 1530; these are the same figure at different precision, and the supplementary value is used for consistency with the other halogenated species."
+  },
+  "values": [
+    {
+      "gas": "CarbonDioxide",
+      "formula": "CO2",
+      "gwp": 1,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.15",
+      "note": "Reference gas by definition."
+    },
+    {
+      "gas": "MethaneFossil",
+      "formula": "CH4",
+      "gwp": 29.8,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.15",
+      "note": "Published as 29.8 ± 11. Not available in Table 7.SM.7, which gives a single unsplit CH4 value of 27.9."
+    },
+    {
+      "gas": "MethaneBiogenic",
+      "formula": "CH4",
+      "gwp": 27.0,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.15",
+      "note": "The table's 'CH4-non fossil' row, published as 27.0 ± 11. This library's MethaneBiogenic member maps to it, and to AR5's plain 'Methane' row."
+    },
+    {
+      "gas": "NitrousOxide",
+      "formula": "N2O",
+      "gwp": 273,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.15",
+      "note": "Published as 273 ± 130. Table 7.SM.7 gives the same value."
+    },
+    {
+      "gas": "SulfurHexafluoride",
+      "formula": "SF6",
+      "gwp": 24300,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.SM.7"
+    },
+    {
+      "gas": "NitrogenTrifluoride",
+      "formula": "NF3",
+      "gwp": 17400,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.SM.7"
+    },
+    {
+      "gas": "Hfc23",
+      "formula": "CHF3",
+      "gwp": 14600,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.SM.7"
+    },
+    {
+      "gas": "Hfc32",
+      "formula": "CH2F2",
+      "gwp": 771,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.SM.7",
+      "note": "Table 7.15 gives the same value."
+    },
+    {
+      "gas": "Hfc125",
+      "formula": "CHF2CF3",
+      "gwp": 3740,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.SM.7"
+    },
+    {
+      "gas": "Hfc134a",
+      "formula": "CH2FCF3",
+      "gwp": 1530,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.SM.7",
+      "note": "Table 7.15 gives 1526; the same figure at higher precision."
+    },
+    {
+      "gas": "Hfc143a",
+      "formula": "CH3CF3",
+      "gwp": 5810,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.SM.7"
+    },
+    {
+      "gas": "Hfc152a",
+      "formula": "CH3CHF2",
+      "gwp": 164,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.SM.7"
+    },
+    {
+      "gas": "Pfc14",
+      "formula": "CF4",
+      "gwp": 7380,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.SM.7",
+      "note": "Table 7.15 gives the same value."
+    },
+    {
+      "gas": "Pfc116",
+      "formula": "C2F6",
+      "gwp": 12400,
+      "sourceTable": "AR6 WG1 Ch.7 Table 7.SM.7"
+    }
+  ]
+}
