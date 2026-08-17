@@ -1,0 +1,76 @@
+{
+  "$schema": "../schema/factor-set.schema.json",
+  "id": "eurostat-grid-tr-2023",
+  "name": "TR public grid electricity 2023 — derived from Eurostat",
+  "region": "TR",
+  "validFrom": "2023-01-01",
+  "source": {
+    "publisher": "Eurostat, republishing European Environment Agency inventory data",
+    "title": "Derived from env_air_gge (greenhouse gas emissions by source sector, CRF 1.A.1.a public electricity and heat production) and nrg_bal_c (complete energy balances) for TR, 2023. Retrieved from the Eurostat dissemination API; the exact inputs used are recorded under verification.inputs so the arithmetic can be checked independently.",
+    "publicationYear": 2023,
+    "url": "https://ec.europa.eu/eurostat/web/main/data/database",
+    "license": "Eurostat reuse policy: free reuse for commercial and non-commercial purposes with acknowledgement of the source."
+  },
+  "verification": {
+    "status": "verified",
+    "verifiedBy": "Ege Ağırgöl",
+    "verifiedOn": "2026-08-17",
+    "method": "Computed by tools/eurostat-import/import_eurostat_grid.py from Eurostat's published series. The GWP basis was recovered from the data rather than taken from documentation: dividing each gas's CO2e series by its mass series yields 27.94 for CH4 and 264.93 for N2O, which are the AR5 values of 28 and 265. The importer refuses to run if that check fails. Gas masses are used rather than the CO2e aggregate, so the resulting factors stay GWP-agnostic and can be reported under AR5 or AR6.",
+    "notes": "THESE FACTORS ARE DERIVED, NOT PUBLISHED. No authority publishes this number; it is computed here from two published series, following the European Environment Agency's own indicator method. Two choices shape the result and are stated rather than hidden. First, CRF 1.A.1.a covers public electricity AND heat, so the heat share is removed by allocating combined heat and power fuel input in proportion to the plant's electricity and heat output; for this country and year that leaves 99.23% of the emissions with electricity, and choosing a different allocation moves the answer by well under one percent because CHP is a small share of the fuel. Second, the numerator covers main activity producers only, so the denominator excludes autoproducers to keep the boundary consistent; using total national generation instead would lower the figure by roughly nine percent, which is why the choice is disclosed. The result was cross-checked against Ember's published lifecycle intensity for the same country and year, which sits above it by the margin lifecycle and biogenic accounting would be expected to add.",
+    "inputs": {
+      "crf_1a1a_emissions_kt": {
+        "CO2": 142490.71,
+        "CH4": 2.03,
+        "N2O": 4.21
+      },
+      "recovered_gwp": {
+        "CH4": 27.94,
+        "N2O": 264.93
+      },
+      "energy_balance_gwh": {
+        "fuel_electricity_only": 619209.926,
+        "fuel_chp": 8085.72,
+        "fuel_heat_only": 0.0,
+        "electricity_electricity_only": 298008.868,
+        "electricity_chp": 2693.547,
+        "heat_chp": 4019.433,
+        "heat_heat_only": 0.0,
+        "electricity_total_all_producers": 331148.895
+      },
+      "chp_electricity_share_of_fuel": 0.401245,
+      "electricity_share_of_emissions": 0.992282,
+      "main_activity_electricity_gwh": 300702.41500000004,
+      "main_activity_heat_gwh": 4019.433
+    },
+    "sourceUrls": {
+      "emissions": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/env_air_gge?format=JSON&lang=EN&src_crf=CRF1A1A&geo=TR&time=2023&unit=THS_T",
+      "fuel_electricity_only": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&nrg_bal=TI_EHG_MAPE_E&siec=TOTAL&unit=GWH&geo=TR&time=2023",
+      "fuel_chp": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&nrg_bal=TI_EHG_MAPCHP_E&siec=TOTAL&unit=GWH&geo=TR&time=2023",
+      "fuel_heat_only": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&nrg_bal=TI_EHG_MAPH_E&siec=TOTAL&unit=GWH&geo=TR&time=2023",
+      "electricity_electricity_only": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&nrg_bal=GEP_MAPE&siec=TOTAL&unit=GWH&geo=TR&time=2023",
+      "electricity_chp": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&nrg_bal=GEP_MAPCHP&siec=TOTAL&unit=GWH&geo=TR&time=2023",
+      "heat_chp": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&nrg_bal=GHP_MAPCHP&siec=TOTAL&unit=GWH&geo=TR&time=2023",
+      "heat_heat_only": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&nrg_bal=GHP_MAPH&siec=TOTAL&unit=GWH&geo=TR&time=2023",
+      "electricity_total_all_producers": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&nrg_bal=GEP&siec=TOTAL&unit=GWH&geo=TR&time=2023"
+    }
+  },
+  "factors": [
+    {
+      "id": "eurostat-grid-tr-2023/public-grid/mwh",
+      "activity": "Purchased grid electricity — TR",
+      "scope": "Scope2",
+      "scope2Method": "LocationBased",
+      "unit": "MegawattHour",
+      "basis": "NotApplicable",
+      "components": {
+        "CarbonDioxide": 470.20237353,
+        "MethaneFossil": 0.00669875824372,
+        "NitrousOxide": 0.0138924986237
+      },
+      "componentsAreDerived": true,
+      "dataQuality": "Secondary",
+      "sourceReference": "Eurostat env_air_gge CRF1A1A and nrg_bal_c, TR 2023",
+      "note": "Main activity producers only. Methane is treated as fossil, which the generation mix makes overwhelmingly true, though the inventory figure includes a small biomass-derived share."
+    }
+  ]
+}

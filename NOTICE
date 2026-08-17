@@ -31,6 +31,15 @@ it. Sets currently shipped:
       A work of the United States Government. EPA content is in the public domain
       unless otherwise noted: https://www.epa.gov/egrid
 
+  data/factors/eurostat-grid-tr-2023.json
+      Derived from Eurostat datasets env_air_gge (greenhouse gas emissions by source
+      sector, originating from the European Environment Agency) and nrg_bal_c
+      (complete energy balances).
+      Eurostat reuse policy: free reuse for commercial and non-commercial purposes,
+      with acknowledgement of the source. https://ec.europa.eu/eurostat
+      Note that the factor itself is not published by Eurostat. It is computed in this
+      repository from those series, and the set records the method and every input.
+
   data/examples/*.json
       Synthetic values authored for this repository purely so the build and the
       tests have something to work against. Not derived from any published dataset,

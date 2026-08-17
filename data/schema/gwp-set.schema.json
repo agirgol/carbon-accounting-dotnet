@@ -85,7 +85,17 @@
           "type": "string",
           "description": "How the values were checked against the primary source."
         },
-        "notes": { "type": "string" }
+        "notes": { "type": "string" },
+        "inputs": {
+          "type": "object",
+          "description": "For a set whose values are computed rather than read off a page: every input the arithmetic consumed, so a reader can redo it without re-running the importer or trusting a live API to still answer the same way.",
+          "additionalProperties": true
+        },
+        "sourceUrls": {
+          "type": "object",
+          "description": "The exact endpoint each input came from, keyed by the name it has under 'inputs'.",
+          "additionalProperties": { "type": "string" }
+        }
       }
     }
   }
