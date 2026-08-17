@@ -8,7 +8,7 @@ namespace GhgAccounting.Tests;
 
 public class DefraCatalogTests
 {
-    private const string SetId = "defra-2026-secr";
+    private const string SetId = "defra-2026";
     private const string NaturalGasGross = "defra-2026/fuels/gaseous-fuels/natural-gas/kwh-gross-cv";
     private const string NaturalGasWtt = "defra-2026/wtt-fuels/gaseous-fuels/natural-gas/kwh-gross-cv";
     private const string UkElectricity = "defra-2026/uk-electricity/electricity-generated/electricity-uk/kwh/kwh";
@@ -167,6 +167,82 @@ public class DefraCatalogTests
     public void EveryFactor_IsTraceableToARowInTheSourceFile()
     {
         Assert.All(Defra.Factors, f => Assert.StartsWith("DESNZ 2026 flat file", f.SourceReference));
+    }
+
+    [Fact]
+    public void Set_CoversTheCategoriesItClaims()
+    {
+        var categories = Defra.Factors
+            .Where(f => f.Scope3Category is not null)
+            .Select(f => f.Scope3Category!.Value)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToArray();
+
+        // Purchased goods and services, fuel- and energy-related activities, waste, and
+        // business travel. Not every category the standard defines, but each one present
+        // is present because the mapping was unambiguous.
+        Assert.Equal(new[] { 1, 3, 5, 6 }, categories);
+    }
+
+    [Fact]
+    public void FreightAndLeasedAssets_ShipWithoutACategoryOnPurpose()
+    {
+        EmissionFactor freight = Defra.Factors.First(f => f.Id.Contains("freighting-goods"));
+
+        // Whether freight is upstream (category 4) or downstream (category 9) depends on
+        // where the reporting company sits in the chain. A national dataset cannot know,
+        // so guessing would put emissions in the wrong row of someone's disclosure.
+        Assert.Equal(Scope.Scope3, freight.Scope);
+        Assert.Null(freight.Scope3Category);
+    }
+
+    [Theory]
+    [InlineData("bioenergy")]
+    [InlineData("refrigerant")]
+    [InlineData("hotel")]
+    [InlineData("secr-kwh")]
+    public void CategoriesExcludedByDecision_AreAbsent(string fragment)
+    {
+        // Bioenergy is still on an AR4 basis, refrigerants and hotel stays have no single
+        // basis, and the SECR kWh series are energy conversions rather than emission
+        // factors. Each is excluded in the importer with its reason recorded.
+        Assert.DoesNotContain(Defra.Factors, f => f.Id.Contains(fragment));
+    }
+
+    [Fact]
+    public void BusinessTravel_IsCategorySix()
+    {
+        EmissionFactor flight = Defra.Factors.First(f => f.Id.Contains("business-travel-air"));
+
+        Assert.Equal(6, flight.Scope3Category);
+        Assert.Equal(Unit.PassengerKilometre, flight.Unit);
+    }
+
+    [Fact]
+    public void EveryFactor_UsesAUnitTheConverterUnderstands()
+    {
+        // Broadening the import brought in distance, freight and passenger units. Each
+        // has to resolve to a dimension, or the calculator cannot decide whether an
+        // activity figure is even convertible into it.
+        Assert.All(Defra.Factors, f => Assert.True(UnitConverter.IsDefined(f.Unit)));
+        Assert.All(Defra.Factors, f => UnitConverter.GetDimension(f.Unit));
+    }
+
+    [Fact]
+    public void DistanceFactors_AcceptEitherKilometresOrMiles()
+    {
+        EmissionFactor perKilometre = Defra.Factors.First(
+            f => f.Unit == Unit.Kilometre && f.Scope == Scope.Scope1);
+
+        var calculator = new EmissionCalculator(GwpSet.Ar5);
+
+        double fromKilometres = calculator.Calculate(new Quantity(160.9344, Unit.Kilometre), perKilometre).Co2e.Value;
+        double fromMiles = calculator.Calculate(new Quantity(100.0, Unit.Mile), perKilometre).Co2e.Value;
+
+        // A UK fleet log in miles and a European one in kilometres reach the same total
+        // without the caller converting anything by hand.
+        Assert.Equal(fromKilometres, fromMiles, precision: 6);
     }
 
     [Fact]

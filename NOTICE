@@ -18,7 +18,7 @@ it. Sets currently shipped:
       Factual constants reproduced with attribution; the IPCC permits reproduction
       of figures and tables from the assessment reports with citation.
 
-  data/factors/defra-2026-secr.json
+  data/factors/defra-2026.json
       UK Government greenhouse gas conversion factors 2026, published by the
       Department for Energy Security and Net Zero.
       Open Government Licence v3.0. Contains public sector information licensed

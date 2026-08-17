@@ -53,7 +53,7 @@ public class InventoryReportTests
         InventoryReport report = InventoryReport.For(UkInventory(), Scope2Method.LocationBased);
 
         Assert.Single(report.Sources);
-        Assert.Equal("defra-2026-secr", report.Sources[0].Set.Id);
+        Assert.Equal("defra-2026", report.Sources[0].Set.Id);
         Assert.Equal(3, report.Sources[0].FactorCount);
         Assert.Equal(1.0, report.Sources[0].Share, precision: 9);
     }
@@ -166,7 +166,7 @@ public class InventoryReportTests
         Assert.Contains("| Scope 2 method | LocationBased |", markdown);
         Assert.Contains("Biogenic CO2", markdown);
         Assert.Contains("## Factor sources", markdown);
-        Assert.Contains("defra-2026-secr", markdown);
+        Assert.Contains("defra-2026", markdown);
         Assert.Contains("## Caveats", markdown);
         Assert.Contains("Scope2NotDualReported", markdown);
     }

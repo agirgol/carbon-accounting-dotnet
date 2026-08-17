@@ -13,12 +13,11 @@ time, so consuming this library adds exactly one package to your graph and nothi
 > ### Status: pre-release (0.1.x)
 >
 > The AR5 and AR6 GWP sets are verified value by value against the IPCC tables they cite.
-> Three factor sets ship, none of them transcribed by hand: 234 UK DESNZ 2026 factors
-> covering Scope 1 fuels, Scope 2 electricity and the Scope 3 category 3 counterparts of
-> both; 27 US EPA eGRID subregion grid factors; and 11 national grid factors derived
-> from Eurostat, with the method and every input recorded in the set. Coverage elsewhere
-> is still thin and Scope 3 beyond category 3 is not covered at all. Every set exposes
-> its own `VerificationStatus` at run time, and
+> Three factor sets ship, none of them transcribed by hand: 893 UK DESNZ 2026 factors
+> spanning fuels, electricity, transport, waste, water and materials; 27 US EPA eGRID
+> subregion grid factors; and 11 national grid factors derived from Eurostat, with the
+> method and every input recorded in the set. Coverage outside those three publishers is
+> still thin. Every set exposes its own `VerificationStatus` at run time, and
 > `dotnet pack -p:GhgRequireVerifiedCatalog=true` refuses to build a package
 > containing unverified data. See [Catalog data](#catalog-data).
 
@@ -236,17 +235,29 @@ redistribution licence, and whether the values have been checked against that so
 |---|---|---|---|---|
 | `Ar5` | IPCC AR5 WG1 Ch.8, Appendix 8.A, Table 8.A.1 | 2013 | Factual constants, reproduced with attribution | ✅ `verified` |
 | `Ar6` | IPCC AR6 WG1 Ch.7, Table 7.15 and Supplementary Table 7.SM.7 | 2021 | Factual constants, reproduced with attribution | ✅ `verified` |
-| `defra-2026-secr` | UK DESNZ conversion factors 2026, flat file (revised 31 July 2026) | 2026 | Open Government Licence v3.0 | ✅ `verified` |
+| `defra-2026` | UK DESNZ conversion factors 2026, flat file (revised 31 July 2026) | 2026 | Open Government Licence v3.0 | ✅ `verified` |
 | `egrid-2023` | US EPA eGRID2023 Rev. 2, subregion annual total output rates | 2025 | US Government work, public domain | ✅ `verified` |
 | `eurostat-grid-2023` | **Derived**: Eurostat `env_air_gge` CRF 1.A.1.a ÷ `nrg_bal_c`, 11 countries | 2023 | Eurostat reuse policy, with acknowledgement | ✅ `verified` |
 | `example-fuels`, `example-value-chain` | None — synthetic values authored for this repository | — | MIT, same as the code | 🚫 `placeholder` |
 
 The DESNZ and eGRID sets are **generated, not transcribed**. `tools/defra-import/import_defra.py`
 reads the published spreadsheet, pins its SHA-256 so an older download cannot quietly
-produce a different catalog, and refuses to emit anything it cannot map — an
-unrecognised unit fails the run rather than dropping a fuel. Re-running it against next
-year's publication is how the set gets updated, and because the output is committed, one
-year diffs cleanly against the next.
+produce a different catalog, and refuses to emit anything it cannot map. Re-running it
+against next year's publication is how the set gets updated, and because the output is
+committed, one year diffs cleanly against the next.
+
+Categories are imported or excluded **by decision, never by omission**: the importer
+fails if DESNZ publishes a category it has not been told about, so a new one cannot
+silently go missing. Seven are excluded with their reasons recorded in the set — bioenergy
+because DESNZ still reports it on an AR4 basis, refrigerants and hotel stays because
+neither has a single basis, and the SECR kWh series because they convert distance to
+energy rather than to emissions.
+
+Scope 3 category numbers are assigned where the mapping is unambiguous. Freight, delivery
+and managed-asset factors ship without one: whether they are upstream or downstream
+depends on where the reporting company sits in the chain, and no publisher can know that.
+They surface through the report's `UncategorisedScope3` caveat rather than being guessed
+into a bucket.
 
 `verified` means every value was checked against the cited table by a named reviewer on a
 recorded date; the method is written into each file. `placeholder` means the numbers are
@@ -350,11 +361,11 @@ Named here so nobody has to read the source to find out:
 | Uncertainty propagation and data-quality breakdown | ✅ |
 | Disclosure report with computed caveats and source citations | ✅ |
 | AR5 and AR6 GWP sets verified against the IPCC tables | ✅ |
-| UK DESNZ 2026 SECR core: 234 factors, machine-generated from the source file | ✅ |
+| UK DESNZ 2026: 893 factors, machine-generated, categories excluded by decision | ✅ |
 | US EPA eGRID 2023: 27 subregion grid factors, published per gas | ✅ |
 | 11 national grid factors derived from Eurostat, method and inputs disclosed | ✅ |
 | Grid factors for district-heating countries, which need a defensible CHP convention | 🚧 next |
-| Remaining DESNZ categories: transport, waste, water, material use | 🚧 planned |
+| Machine-readable report output (JSON, CSV) | 🚧 next |
 
 ## Repository layout
 

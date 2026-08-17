@@ -34,13 +34,67 @@ NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 # looks fine and is wrong.
 EXPECTED_SHA256 = "a9a455ab396dae226d510c7be6233748416d490c41a5d20f3dc7a0c45feecd5e"
 
-# Level 1 categories that make up the SECR core: Scope 1 fuel combustion, Scope 2
-# purchased electricity, and the Scope 3 category 3 counterparts of both.
+# Level 1 categories to import, mapped to the GHG Protocol Scope 3 category they belong
+# to. None means the category is genuinely ambiguous from a national dataset: whether
+# freight is upstream or downstream, or a leased asset upstream or downstream, depends on
+# where the reporting company sits in the chain, which no publisher can know. Those
+# factors ship without a category and surface through the report's UncategorisedScope3
+# caveat rather than being guessed into a bucket.
 TARGET_CATEGORIES = {
-    "Fuels",
-    "UK electricity",
-    "Transmission and distribution",
-    "WTT- fuels",
+    "Fuels": None,
+    "UK electricity": None,
+    "Heat and steam": None,
+    "Passenger vehicles": None,
+    "Delivery vehicles": None,
+    "UK electricity for EVs": None,
+
+    "Transmission and distribution": 3,
+    "WTT- fuels": 3,
+    "WTT- UK electricity": 3,
+    "WTT- heat and steam": 3,
+    "UK electricity T&D for EVs": 3,
+
+    "Material use": 1,
+    "Water supply": 1,
+    "Waste disposal": 5,
+    "Water treatment": 5,
+    "Business travel- air": 6,
+    "Business travel- land": 6,
+    "Business travel- sea": 6,
+    "WTT- business travel- air": 6,
+    "WTT- business travel- sea": 6,
+    "WTT- pass vehs & travel- land": 6,
+
+    "Freighting goods": None,
+    "WTT- delivery vehs & freight": None,
+    "Managed assets- vehicles": None,
+    "Managed assets- electricity": None,
+}
+
+# Deliberately not imported, each for a stated reason rather than because it was missed.
+EXCLUDED_CATEGORIES = {
+    "Bioenergy": "DESNZ Table 1 lists this as still on an AR4 basis.",
+    "WTT- bioenergy": "DESNZ Table 1 lists this as still on an AR4 basis.",
+    "Hotel stay": "DESNZ footnote 6: not all values are aligned with AR5, because some "
+                  "countries' source data arrived as CO2e with no gas breakdown.",
+    "Refrigerant & other": "DESNZ footnote 5: mostly AR5 but AR6 where AR5 was "
+                           "unavailable, so the set has no single basis. These factors "
+                           "are GWP values in any case, and this library already ships "
+                           "AR5 and AR6 tables that let the caller choose.",
+    "SECR kWh pass & delivery vehs": "Not emission factors. These convert distance to "
+                                     "energy for SECR energy-use reporting.",
+    "SECR kWh UK electricity for EVs": "Not emission factors. These convert distance to "
+                                       "energy for SECR energy-use reporting.",
+    "Homeworking": "Published per full-time-equivalent working hour, which is not a "
+                   "physical quantity this library models.",
+}
+
+# Units that appear in the imported categories but are deliberately not mapped. Anything
+# outside both this set and UNITS still fails the run.
+SKIPPED_UNITS = {
+    "Room per night": "Not a physical quantity this library models.",
+    "per FTE Working Hour": "Not a physical quantity this library models.",
+    "million litres": "The same factors are published per cubic metre, which is mapped.",
 }
 
 # DESNZ states the basis in the methodology report: "using Global Warming Potential
@@ -69,8 +123,14 @@ GAS_MEMBERS = {
 
 UNITS = {
     "tonnes": ("Tonne", "NotApplicable"),
+    "kg": ("Kilogram", "NotApplicable"),
     "litres": ("Litre", "NotApplicable"),
     "cubic metres": ("CubicMetre", "NotApplicable"),
+    "GJ": ("Gigajoule", "NotApplicable"),
+    "km": ("Kilometre", "NotApplicable"),
+    "miles": ("Mile", "NotApplicable"),
+    "tonne.km": ("TonneKilometre", "NotApplicable"),
+    "passenger.km": ("PassengerKilometre", "NotApplicable"),
     "kWh": ("KilowattHour", "NotApplicable"),
     "kWh (Net CV)": ("KilowattHour", "NetCalorificValue"),
     "kWh (Gross CV)": ("KilowattHour", "GrossCalorificValue"),
@@ -127,9 +187,7 @@ def number(value):
 
 
 def scope3_category(level1):
-    # Both well-to-tank fuel emissions and grid transmission and distribution losses
-    # fall under GHG Protocol Scope 3 category 3, fuel- and energy-related activities.
-    return 3 if level1 in ("WTT- fuels", "Transmission and distribution") else None
+    return TARGET_CATEGORIES.get(level1)
 
 
 def build(rows):
@@ -141,6 +199,8 @@ def build(rows):
     biogenic = {}
     unknown_units = set()
     unknown_gases = set()
+    skipped_rows = {}
+    seen_categories = set()
 
     for row in data:
         level1 = row.get("C", "")
@@ -157,7 +217,12 @@ def build(rows):
             biogenic[(row.get("E", ""), uom)] = number(raw)
             continue
 
+        seen_categories.add(level1)
         if level1 not in TARGET_CATEGORIES:
+            continue
+
+        if uom in SKIPPED_UNITS:
+            skipped_rows[uom] = skipped_rows.get(uom, 0) + 1
             continue
 
         if uom not in UNITS:
@@ -179,6 +244,15 @@ def build(rows):
         raise SystemExit(f"Unmapped units, refusing to emit a partial catalog: {sorted(unknown_units)}")
     if unknown_gases:
         raise SystemExit(f"Unmapped gas columns, refusing to emit a partial catalog: {sorted(unknown_gases)}")
+
+    # A category that is neither imported nor listed as a deliberate exclusion means the
+    # publisher added something since this importer was written. Failing is the point:
+    # silence would let a whole category disappear from the catalog unnoticed.
+    unaccounted = seen_categories - set(TARGET_CATEGORIES) - set(EXCLUDED_CATEGORIES) - {"Outside of scopes"}
+    if unaccounted:
+        raise SystemExit(
+            f"DESNZ publishes categories this importer neither imports nor excludes: "
+            f"{sorted(unaccounted)}. Decide about each one deliberately.")
 
     factors = []
     derived_count = 0
@@ -243,7 +317,7 @@ def build(rows):
         factor["sourceReference"] = f"DESNZ 2026 flat file, row group {entry['_id']}"
         factors.append(factor)
 
-    return factors, derived_count, biogenic_attached, biogenic
+    return factors, derived_count, biogenic_attached, biogenic, skipped_rows
 
 
 def main():
@@ -260,12 +334,12 @@ def main():
             "what changed in the new file."
         )
 
-    factors, derived, attached, biogenic = build(read_sheet(source))
+    factors, derived, attached, biogenic, skipped_rows = build(read_sheet(source))
 
     document = {
         "$schema": "../schema/factor-set.schema.json",
-        "id": "defra-2026-secr",
-        "name": "UK Government GHG Conversion Factors 2026 — fuels, electricity and fuel-related Scope 3",
+        "id": "defra-2026",
+        "name": "UK Government GHG Conversion Factors 2026",
         "region": "GB",
         "validFrom": "2026-01-01",
         "source": {
@@ -291,6 +365,14 @@ def main():
                 "rather than silently dropping a factor."
             ),
             "notes": (
+                "Categories are imported or excluded by decision, never by omission: the "
+                "importer fails if DESNZ publishes a category it has not been told about. "
+                "Excluded, with reasons: "
+                + "; ".join(f"{name} — {why}" for name, why in sorted(EXCLUDED_CATEGORIES.items()))
+                + " Scope 3 category numbers are assigned where the mapping is "
+                "unambiguous. Freight, delivery and managed-asset factors ship without "
+                "one, because whether they are upstream or downstream depends on where "
+                "the reporting company sits in the chain and no publisher can know that. "
                 "Per-gas components are DERIVED, not published: DESNZ publishes the "
                 "split as CO2e using AR5 GWPs of 28 for CH4 and 265 for N2O, and the "
                 "importer divides those back out to recover the gas masses so that a "
@@ -318,6 +400,9 @@ def main():
     print(f"  by scope: {dict(sorted(scopes.items()))}")
     print(f"  with derived gas components: {derived}")
     print(f"  with biogenic carbon attached: {attached} (of {len(biogenic)} outside-of-scope rows seen)")
+    if skipped_rows:
+        print(f"  rows skipped for unmapped units: {skipped_rows}")
+    print(f"  categories excluded by decision: {len(EXCLUDED_CATEGORIES)}")
 
 
 if __name__ == "__main__":
