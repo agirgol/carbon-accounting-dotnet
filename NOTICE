@@ -25,6 +25,12 @@ it. Sets currently shipped:
       under the Open Government Licence v3.0:
       https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
 
+  data/factors/egrid-2023.json
+      Emissions & Generation Resource Integrated Database (eGRID2023), published by
+      the United States Environmental Protection Agency.
+      A work of the United States Government. EPA content is in the public domain
+      unless otherwise noted: https://www.epa.gov/egrid
+
   data/examples/*.json
       Synthetic values authored for this repository purely so the build and the
       tests have something to work against. Not derived from any published dataset,

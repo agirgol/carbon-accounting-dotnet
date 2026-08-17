@@ -13,10 +13,11 @@ time, so consuming this library adds exactly one package to your graph and nothi
 > ### Status: pre-release (0.1.x)
 >
 > The AR5 and AR6 GWP sets are verified value by value against the IPCC tables they cite.
-> The first emission factor set — 234 UK DESNZ 2026 factors covering Scope 1 fuels,
-> Scope 2 electricity and the Scope 3 category 3 counterparts of both — is generated
-> directly from the published file rather than transcribed. Coverage beyond the SECR core
-> is still thin. Every set exposes its own `VerificationStatus` at run time, and
+> Two factor sets ship, both generated from the published source files rather than
+> transcribed: 234 UK DESNZ 2026 factors covering Scope 1 fuels, Scope 2 electricity and
+> the Scope 3 category 3 counterparts of both, and 27 US EPA eGRID subregion grid
+> factors. Coverage outside the UK and US is still thin, and Scope 3 beyond category 3 is
+> not covered at all. Every set exposes its own `VerificationStatus` at run time, and
 > `dotnet pack -p:GhgRequireVerifiedCatalog=true` refuses to build a package
 > containing unverified data. See [Catalog data](#catalog-data).
 
@@ -187,9 +188,10 @@ redistribution licence, and whether the values have been checked against that so
 | `Ar5` | IPCC AR5 WG1 Ch.8, Appendix 8.A, Table 8.A.1 | 2013 | Factual constants, reproduced with attribution | ✅ `verified` |
 | `Ar6` | IPCC AR6 WG1 Ch.7, Table 7.15 and Supplementary Table 7.SM.7 | 2021 | Factual constants, reproduced with attribution | ✅ `verified` |
 | `defra-2026-secr` | UK DESNZ conversion factors 2026, flat file (revised 31 July 2026) | 2026 | Open Government Licence v3.0 | ✅ `verified` |
+| `egrid-2023` | US EPA eGRID2023 Rev. 2, subregion annual total output rates | 2025 | US Government work, public domain | ✅ `verified` |
 | `example-fuels`, `example-value-chain` | None — synthetic values authored for this repository | — | MIT, same as the code | 🚫 `placeholder` |
 
-The DESNZ set is **generated, not transcribed**. `tools/defra-import/import_defra.py`
+Both factor sets are **generated, not transcribed**. `tools/defra-import/import_defra.py`
 reads the published spreadsheet, pins its SHA-256 so an older download cannot quietly
 produce a different catalog, and refuses to emit anything it cannot map — an
 unrecognised unit fails the run rather than dropping a fuel. Re-running it against next
@@ -230,9 +232,9 @@ Datasets are only added once their redistribution terms are confirmed to allow i
 | Publisher | Coverage | Terms |
 |---|---|---|
 | UK DESNZ, remaining categories | Transport, waste, water, material use | Open Government Licence v3 |
-| US EPA eGRID | US grid electricity, subregional | US public domain |
-| Ember | Global electricity carbon intensity | CC BY 4.0 |
+| US EPA eGRID, grid loss | US transmission and distribution, Scope 3 cat. 3 | US public domain |
 | European Environment Agency | European grid intensity | EEA reuse policy |
+| National inventories | Türkiye and other non-EU grids | Varies; checked per source |
 
 IEA emission factor data is deliberately **not** on this list. It is a commercially
 licensed product, and embedding its values in a redistributable package is not something
@@ -274,6 +276,15 @@ Named here so nobody has to read the source to find out:
 - **CBAM and CSRD report rendering.** Regulatory output formats change on their own
   schedule and do not belong in a calculation engine.
 - **Currency, spend and financial data.** No monetary units, by design.
+- **Lifecycle grid intensity datasets.** Several widely used open datasets publish a
+  national "CO₂ intensity of electricity" that is not a Scope 2 location-based factor.
+  Ember's, for instance, attributes 12.8 gCO₂/kWh to wind, 47.6 to solar and 4.9 to
+  nuclear — technologies with no combustion at all — which only makes sense as a
+  lifecycle figure, and it counts biogenic CO₂ from bioenergy inside the intensity where
+  the GHG Protocol requires it outside the scope totals. Against DESNZ for the same grid
+  and year the gap is 66%. Convenient global coverage is not worth shipping a number
+  under a label it does not fit, so grid factors come from sources that publish on the
+  right basis.
 
 ## Implementation status
 
@@ -289,8 +300,9 @@ Named here so nobody has to read the source to find out:
 | Uncertainty propagation and data-quality breakdown | ✅ |
 | AR5 and AR6 GWP sets verified against the IPCC tables | ✅ |
 | UK DESNZ 2026 SECR core: 234 factors, machine-generated from the source file | ✅ |
+| US EPA eGRID 2023: 27 subregion grid factors, published per gas | ✅ |
 | Remaining DESNZ categories: transport, waste, water, material use | 🚧 next |
-| eGRID / Ember / EEA grid factors for non-UK regions | 🚧 planned |
+| European and Turkish grid factors | 🚧 planned |
 
 ## Repository layout
 
@@ -307,6 +319,7 @@ tests/
   GhgAccounting.Tests/      Runs against net8.0 and net10.0
 tools/
   defra-import/                Turns the published DESNZ spreadsheet into catalog JSON
+  egrid-import/                Turns the published EPA eGRID workbook into catalog JSON
 ```
 
 ## Build and test
