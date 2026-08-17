@@ -1,4 +1,4 @@
-# CarbonAccounting
+# GhgAccounting
 
 [![CI](https://github.com/agirgol/carbon-accounting-dotnet/actions/workflows/ci.yml/badge.svg)](https://github.com/agirgol/carbon-accounting-dotnet/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -17,7 +17,7 @@ time, so consuming this library adds exactly one package to your graph and nothi
 > Scope 2 electricity and the Scope 3 category 3 counterparts of both — is generated
 > directly from the published file rather than transcribed. Coverage beyond the SECR core
 > is still thin. Every set exposes its own `VerificationStatus` at run time, and
-> `dotnet pack -p:CarbonRequireVerifiedCatalog=true` refuses to build a package
+> `dotnet pack -p:GhgRequireVerifiedCatalog=true` refuses to build a package
 > containing unverified data. See [Catalog data](#catalog-data).
 
 ## Why this exists
@@ -34,7 +34,7 @@ guess when it cannot know.
 ## Install
 
 ```
-dotnet add package CarbonAccounting
+dotnet add package GhgAccounting
 ```
 
 Targets `netstandard2.0`, `net8.0` and `net10.0`. The netstandard target keeps .NET
@@ -47,9 +47,9 @@ Build an inventory:
 
 ```csharp
 using System;
-using CarbonAccounting;
-using CarbonAccounting.Calculation;
-using CarbonAccounting.Units;
+using GhgAccounting;
+using GhgAccounting.Calculation;
+using GhgAccounting.Units;
 
 var calculator = new EmissionCalculator(GwpSet.Ar6);
 
@@ -82,9 +82,9 @@ the whole of purchased electricity from the total, and nothing downstream would 
 Choosing the GWP set:
 
 ```csharp
-using CarbonAccounting;
-using CarbonAccounting.Factors;
-using CarbonAccounting.Units;
+using GhgAccounting;
+using GhgAccounting.Factors;
+using GhgAccounting.Units;
 
 // The GWP set is always a caller decision, never a library default.
 // One tonne of fugitive fossil methane from a gas network:
@@ -102,7 +102,7 @@ Every factor carries its provenance, so a report can print the citation next to 
 number:
 
 ```csharp
-EmissionFactor factor = FactorCatalog.Get("example-fuels/natural-gas/gcv/kwh");
+EmissionFactor factor = FactorCatalog.Get("defra-2026/fuels/gaseous-fuels/natural-gas/kwh-gross-cv");
 
 Console.WriteLine(factor.Set.Source);        // publisher, document, year
 Console.WriteLine(factor.Set.Region);        // where the factor is valid
@@ -174,7 +174,7 @@ compiler error rather than a wrong number.
 
 **Verification status is part of the public API.** A compliance report generator must be
 able to refuse data nobody has checked. Status is readable at run time, surfaced as a
-build warning (`CARB006`), and turned into a hard error (`CARB005`) when packing for
+build warning (`GHG006`), and turned into a hard error (`GHG005`) when packing for
 release.
 
 ## Catalog data
@@ -301,10 +301,10 @@ data/
   examples/       Synthetic sets for tests. Excluded from release builds.
   schema/         JSON Schema for both catalog shapes
 src/
-  CarbonAccounting/            The shipping library. Zero PackageReference entries.
-  CarbonAccounting.Generators/ Build-time source generator. Never shipped.
+  GhgAccounting/            The shipping library. Zero PackageReference entries.
+  GhgAccounting.Generators/ Build-time source generator. Never shipped.
 tests/
-  CarbonAccounting.Tests/      Runs against net8.0 and net10.0
+  GhgAccounting.Tests/      Runs against net8.0 and net10.0
 tools/
   defra-import/                Turns the published DESNZ spreadsheet into catalog JSON
 ```
@@ -314,8 +314,8 @@ tools/
 Requires the .NET 10 SDK.
 
 ```
-dotnet build CarbonAccounting.slnx
-dotnet test  CarbonAccounting.slnx
+dotnet build GhgAccounting.slnx
+dotnet test  GhgAccounting.slnx
 ```
 
 The `net8.0` test leg rolls forward onto the .NET 10 runtime locally, so a fresh clone is
@@ -325,7 +325,7 @@ on .NET 8 for real.
 To check the release gate:
 
 ```
-dotnet pack src/CarbonAccounting/CarbonAccounting.csproj -c Release -p:CarbonRequireVerifiedCatalog=true
+dotnet pack src/GhgAccounting/GhgAccounting.csproj -c Release -p:GhgRequireVerifiedCatalog=true
 ```
 
 This now succeeds: both GWP sets are verified, and the synthetic factor sets are dropped

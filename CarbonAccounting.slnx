@@ -1,9 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/CarbonAccounting/CarbonAccounting.csproj" />
-    <Project Path="src/CarbonAccounting.Generators/CarbonAccounting.Generators.csproj" />
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/CarbonAccounting.Tests/CarbonAccounting.Tests.csproj" />
-  </Folder>
-</Solution>

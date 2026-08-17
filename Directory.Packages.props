@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <!--
-    The shipping library (src/CarbonAccounting) intentionally has ZERO PackageReference
+    The shipping library (src/GhgAccounting) intentionally has ZERO PackageReference
     entries. Everything below is build-time or test-only tooling.
   -->
   <ItemGroup>

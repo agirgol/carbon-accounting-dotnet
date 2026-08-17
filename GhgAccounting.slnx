@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GhgAccounting/GhgAccounting.csproj" />
+    <Project Path="src/GhgAccounting.Generators/GhgAccounting.Generators.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/GhgAccounting.Tests/GhgAccounting.Tests.csproj" />
+  </Folder>
+</Solution>

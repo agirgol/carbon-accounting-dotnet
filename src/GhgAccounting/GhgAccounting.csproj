@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      netstandard2.0 keeps .NET Framework 4.6.1+ consumers (a large share of the
+      ERP / finance systems this library is aimed at) in scope.
+      net8.0 and net10.0 are the current LTS releases.
+    -->
+    <TargetFrameworks>netstandard2.0;net8.0;net10.0</TargetFrameworks>
+    <RootNamespace>GhgAccounting</RootNamespace>
+    <AssemblyName>GhgAccounting</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!--
+      CA1510 suggests ArgumentNullException.ThrowIfNull, which does not exist on
+      netstandard2.0. Taking the suggestion would mean either dropping that target or
+      littering the code with #if blocks for one guard clause.
+    -->
+    <NoWarn>$(NoWarn);CA1510</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackageId>GhgAccounting</PackageId>
+    <Title>GhgAccounting</Title>
+    <Description>GHG Protocol and ISO 14064-1 aligned greenhouse gas accounting for .NET. Scope 1/2/3 calculation, a versioned and source-cited emission factor catalog, unit conversion, AR5/AR6 GWP set selection, and data-quality scoring. No runtime dependencies.</Description>
+  </PropertyGroup>
+
+  <!--
+    Catalog verification gate. Off during development so unverified data can be worked
+    on; the release workflow packs with -p:GhgRequireVerifiedCatalog=true, which turns
+    the GHG006 warning into the GHG005 error and makes it impossible to publish a
+    package containing numbers nobody has checked against their cited source.
+  -->
+  <PropertyGroup>
+    <GhgRequireVerifiedCatalog Condition="'$(GhgRequireVerifiedCatalog)' == ''">false</GhgRequireVerifiedCatalog>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);GHG006</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />
+    <CompilerVisibleProperty Include="GhgRequireVerifiedCatalog" />
+  </ItemGroup>
+
+  <!--
+    The generator turns the JSON catalog into C# at compile time. Consumers get
+    compiled lookup tables: no JSON parser, no embedded resources, no I/O,
+    and therefore no runtime package dependency.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="../GhgAccounting.Generators/GhgAccounting.Generators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="../../data/gwp/*.json" CarbonCatalogKind="gwp" />
+    <AdditionalFiles Include="../../data/factors/*.json" CarbonCatalogKind="factors" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="CarbonCatalogKind" />
+  </ItemGroup>
+
+  <!--
+    Synthetic sets, kept apart from data/factors/ so the distinction is visible in the
+    tree rather than only in a status field. They give the generator and the tests
+    something to compile against, and they drop out the moment the build is packing for
+    release: invented numbers can never reach 'verified' status, so shipping them is not
+    a thing the gate should have to catch.
+  -->
+  <ItemGroup Condition="'$(GhgRequireVerifiedCatalog)' != 'true'">
+    <AdditionalFiles Include="../../data/examples/*.json" CarbonCatalogKind="factors" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Both LTS targets are exercised, so a netstandard-only regression cannot hide. -->
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <!--
+      Lets the net8.0 leg run on a machine that only has the .NET 10 runtime, so a
+      fresh clone is green with one SDK. CI installs the real 8.0 runtime, where an
+      exact match wins and the leg genuinely executes on .NET 8.
+    -->
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/GhgAccounting/GhgAccounting.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -35,17 +35,17 @@ jobs:
             10.0.x
 
       - name: Restore
-        run: dotnet restore CarbonAccounting.slnx
+        run: dotnet restore GhgAccounting.slnx
 
       - name: Verify formatting
-        run: dotnet format CarbonAccounting.slnx --verify-no-changes --no-restore
+        run: dotnet format GhgAccounting.slnx --verify-no-changes --no-restore
 
       - name: Build
-        run: dotnet build CarbonAccounting.slnx -c Release --no-restore
+        run: dotnet build GhgAccounting.slnx -c Release --no-restore
 
       - name: Test with coverage
         run: >
-          dotnet test CarbonAccounting.slnx
+          dotnet test GhgAccounting.slnx
           -c Release
           --no-build
           --collect:"XPlat Code Coverage"
@@ -84,7 +84,7 @@ jobs:
       # Packs without the verified-catalog gate, so CI stays green while factor data is
       # still being checked. The release workflow packs with the gate on.
       - name: Pack (smoke)
-        run: dotnet pack src/CarbonAccounting/CarbonAccounting.csproj -c Release --no-build -o ./artifacts
+        run: dotnet pack src/GhgAccounting/GhgAccounting.csproj -c Release --no-build -o ./artifacts
 
       - name: Upload package
         uses: actions/upload-artifact@v4

@@ -50,24 +50,24 @@ jobs:
           echo "Publishing $version"
 
       - name: Restore
-        run: dotnet restore CarbonAccounting.slnx
+        run: dotnet restore GhgAccounting.slnx
 
       - name: Build
-        run: dotnet build CarbonAccounting.slnx -c Release --no-restore -p:Version=${{ steps.version.outputs.value }}
+        run: dotnet build GhgAccounting.slnx -c Release --no-restore -p:Version=${{ steps.version.outputs.value }}
 
       - name: Test
-        run: dotnet test CarbonAccounting.slnx -c Release --no-build
+        run: dotnet test GhgAccounting.slnx -c Release --no-build
 
-      # CarbonRequireVerifiedCatalog turns CARB006 into the CARB005 error, so a package
+      # GhgRequireVerifiedCatalog turns GHG006 into the GHG005 error, so a package
       # containing emission factors that nobody has checked against their cited source
       # cannot be produced at all — the build fails before anything is uploaded.
       - name: Pack with the verified-catalog gate
         run: >
-          dotnet pack src/CarbonAccounting/CarbonAccounting.csproj
+          dotnet pack src/GhgAccounting/GhgAccounting.csproj
           -c Release
           -o ./artifacts
           -p:Version=${{ steps.version.outputs.value }}
-          -p:CarbonRequireVerifiedCatalog=true
+          -p:GhgRequireVerifiedCatalog=true
 
       # Trusted Publishing: GitHub issues a signed OIDC token, nuget.org validates it
       # against the policy registered for this repository and workflow file, and returns
