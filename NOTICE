@@ -31,7 +31,7 @@ it. Sets currently shipped:
       A work of the United States Government. EPA content is in the public domain
       unless otherwise noted: https://www.epa.gov/egrid
 
-  data/factors/eurostat-grid-tr-2023.json
+  data/factors/eurostat-grid-2023.json
       Derived from Eurostat datasets env_air_gge (greenhouse gas emissions by source
       sector, originating from the European Environment Agency) and nrg_bal_c
       (complete energy balances).

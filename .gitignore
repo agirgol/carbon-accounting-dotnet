@@ -24,6 +24,10 @@ Thumbs.db
 packages/
 !NuGet.config
 
+## Python importer bytecode
+__pycache__/
+*.pyc
+
 ## Local tool downloads used by the catalog importers. The published source files are
 ## large and are fetched on demand; only the generated JSON belongs in the repository.
 tools/**/downloads/

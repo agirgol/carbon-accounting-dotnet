@@ -318,7 +318,8 @@ public sealed class CatalogGenerator : IIncrementalGenerator
                     .Append(uncertainty is null ? "null" : Number(uncertainty.Value))
                     .AppendLine(",");
                 builder.Append("                            ").Append(Literal(factor.String("note"))).AppendLine(",");
-                builder.Append("                            ").Append(Literal(factor.String("sourceReference"))).Append(')');
+                builder.Append("                            ").Append(Literal(factor.String("sourceReference"))).AppendLine(",");
+                builder.Append("                            ").Append(Literal(factor.String("region"))).Append(')');
 
                 emitted.Add(builder.ToString());
             }

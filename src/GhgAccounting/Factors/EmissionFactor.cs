@@ -17,6 +17,8 @@ namespace GhgAccounting.Factors;
 /// </remarks>
 public sealed class EmissionFactor
 {
+    private readonly string? _region;
+
     internal EmissionFactor(
         string id,
         string activity,
@@ -33,8 +35,10 @@ public sealed class EmissionFactor
         DataQuality dataQuality,
         double? uncertaintyPercent,
         string? note,
-        string? sourceReference)
+        string? sourceReference,
+        string? region)
     {
+        _region = region;
         Id = id;
         Activity = activity;
         Scope = scope;
@@ -138,6 +142,18 @@ public sealed class EmissionFactor
 
     /// <summary>The publisher's own identifier for this row, so it can be found in the original file.</summary>
     public string? SourceReference { get; }
+
+    /// <summary>
+    /// Where this factor is valid, falling back to the set's region when the factor
+    /// names none.
+    /// </summary>
+    /// <remarks>
+    /// Electricity datasets routinely cover many jurisdictions or grid areas in one
+    /// publication, and applying a regional factor outside its region is the single most
+    /// common inventory error. Keeping the region on the factor means the answer is
+    /// always one property away, whatever shape the source came in.
+    /// </remarks>
+    public string? Region => _region ?? Set.Region;
 
     /// <summary>The published set this factor belongs to. Carries the citation and verification status.</summary>
     public FactorSet Set { get; internal set; }

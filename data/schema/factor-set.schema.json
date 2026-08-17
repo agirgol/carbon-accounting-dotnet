@@ -90,6 +90,10 @@
           "enum": ["Ar4", "Ar5", "Ar6"],
           "description": "The assessment report the publisher aggregated publishedCo2eKgPerUnit under. Without it the figure cannot be placed in an inventory, because CO2e is meaningless until you know which GWP set produced it."
         },
+        "region": {
+          "type": "string",
+          "description": "Overrides the set's region for this factor. Needed whenever one published dataset covers several jurisdictions or grid areas, which is the normal case for electricity."
+        },
         "sourceReference": {
           "type": "string",
           "description": "The publisher's own identifier for this row, so a reader can find it in the original file."
