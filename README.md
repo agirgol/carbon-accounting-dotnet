@@ -87,11 +87,9 @@ using GhgAccounting.Reporting;
 
 InventoryReport report = InventoryReport.For(inventory, Scope2Method.LocationBased);
 
-Console.WriteLine(report.ToMarkdown());
-foreach (ReportCaveat caveat in report.Caveats)
-{
-    Console.WriteLine($"{caveat.Kind}: {caveat.Detail}");
-}
+report.ToMarkdown();   // the disclosure, for a human
+report.ToJson();       // the same figures, for an API or a database
+report.ToCsv();        // one row per inventory line, for an assurer's spreadsheet
 ```
 
 The report states the GWP set and Scope 2 method, holds biogenic CO₂ outside the totals,
@@ -110,7 +108,16 @@ the caveats. The caveats are **computed from the inventory, not written by the r
   Confirm each was used for activity in its own region.
 ```
 
-It renders nothing regulatory. CBAM and CSRD formats change on their own schedule and
+`ToCsv` is the audit trail rather than the summary: every line carries its activity
+figure, the factor applied, the set it came from, its region and data quality, whether
+its gas split was derived, and what the publisher's own figure would have been. Someone
+checking a total works down that, not down the disclosure.
+
+All three writers are hand-rolled, for the same reason the catalog is compiled rather
+than parsed: a reporting library should not oblige its consumers to take a dependency on
+a serializer. Every number is written with the invariant culture, pinned by tests.
+
+They render nothing regulatory. CBAM and CSRD formats change on their own schedule and
 stay out of scope; this is the standard's own disclosure content.
 
 Choosing the GWP set:
@@ -360,12 +367,12 @@ Named here so nobody has to read the source to find out:
 | Biogenic carbon reported outside the scope totals | ✅ |
 | Uncertainty propagation and data-quality breakdown | ✅ |
 | Disclosure report with computed caveats and source citations | ✅ |
+| Markdown, JSON and CSV report output, no serializer dependency | ✅ |
 | AR5 and AR6 GWP sets verified against the IPCC tables | ✅ |
 | UK DESNZ 2026: 893 factors, machine-generated, categories excluded by decision | ✅ |
 | US EPA eGRID 2023: 27 subregion grid factors, published per gas | ✅ |
 | 11 national grid factors derived from Eurostat, method and inputs disclosed | ✅ |
-| Grid factors for district-heating countries, which need a defensible CHP convention | 🚧 next |
-| Machine-readable report output (JSON, CSV) | 🚧 next |
+| Grid factors for district-heating countries, given a defensible CHP convention | 🚧 next |
 
 ## Repository layout
 

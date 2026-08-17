@@ -28,7 +28,7 @@ namespace GhgAccounting.Reporting;
 /// are deliberately out of scope; this is the standard's own disclosure content.
 /// </para>
 /// </remarks>
-public sealed class InventoryReport
+public sealed partial class InventoryReport
 {
     private InventoryReport(
         Inventory inventory,
